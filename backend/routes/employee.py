@@ -1,4 +1,4 @@
-"""Employee analytics dashboard.
+﻿"""Employee analytics dashboard.
 
 This module is intentionally self-contained (no separate analytics module).
 It loads the CSVs in ``backend/data`` and produces a rich, benchmarked view of a
@@ -384,7 +384,7 @@ def benchmark_insight(insights, kpi, category, good_threshold, low_threshold,
     if percentile >= 90:
         add_insight(
             insights, category, "positive", good_title,
-            f"{kpi['label']} is {fmt(value)} — in the {benchmark['standing']} "
+            f"{kpi['label']} is {fmt(value)} â€” in the {benchmark['standing']} "
             f"of {benchmark['peers']} employees (company avg {fmt(company)}).",
             {"value": value, "company_avg": company, "percentile": percentile},
         )
@@ -407,6 +407,42 @@ def benchmark_insight(insights, kpi, category, good_threshold, low_threshold,
 # ---------------------------------------------------------------------------
 # Endpoint
 # ---------------------------------------------------------------------------
+
+
+def weekly_scatter(df, employee_id, x_col, y_col, x_key, y_key, x_scale=1.0,
+                   y_scale=1.0):
+    """Scatter dataset: one point per week for the employee + company average."""
+    required = {"Week_Start", "Employee_ID", x_col, y_col}
+    if df.empty or not required.issubset(df.columns):
+        return []
+
+    temp = df[["Week_Start", "Employee_ID", x_col, y_col]].copy()
+    temp[x_col] = numeric(temp[x_col])
+    temp[y_col] = numeric(temp[y_col])
+    temp = temp.dropna(subset=[x_col, y_col])
+    if temp.empty:
+        return []
+
+    mine = temp[ids_equal(temp["Employee_ID"], employee_id)]
+    if mine.empty:
+        return []
+
+    personal = mine.groupby("Week_Start")[[x_col, y_col]].mean()
+    company = temp.groupby("Week_Start")[[x_col, y_col]].mean()
+
+    result = []
+    for week in sorted(personal.index):
+        p = personal.loc[week]
+        c = company.loc[week] if week in company.index else p
+        result.append({
+            "week": str(week),
+            x_key: round(float(p[x_col]) * x_scale, 2),
+            y_key: round(float(p[y_col]) * y_scale, 2),
+            "company_" + x_key: round(float(c[x_col]) * x_scale, 2),
+            "company_" + y_key: round(float(c[y_col]) * y_scale, 2),
+        })
+    return result
+
 
 @router.get("/")
 def employee_dashboard(employee_id: str = Query(..., min_length=1)):
@@ -526,7 +562,7 @@ def employee_dashboard(employee_id: str = Query(..., min_length=1)):
         ("office_days", "Office days", "days", "Work location", False, None),
         ("remote_days", "Remote days", "days", "Work location", False, None),
         ("commute_distance_saved", "Commute distance saved", "km", "Sustainability", False, True),
-        ("co2_saved", "CO₂ saved", "kg", "Sustainability", True, True),
+        ("co2_saved", " saved", "kg", "Sustainability", True, True),
         ("meeting_hours", "Meeting hours", "h", "Meetings", True, False),
         ("meeting_attendance_rate", "Meeting attendance", "%", "Meetings", True, True),
         ("action_completion_rate", "Action completion", "%", "Meetings", True, True),
@@ -641,6 +677,12 @@ def employee_dashboard(employee_id: str = Query(..., min_length=1)):
             hybrid_all, employee_id, "Focus_Hours", "mean", "hours"),
         "weekly_co2_saved": weekly_compare(
             hybrid_all, employee_id, "Estimated_CO2_Saved_KG", "sum", "co2_kg"),
+        "weekly_commute_distance": weekly_compare(
+            hybrid_all, employee_id, "Commute_Distance_Saved_KM", "sum",
+            "km_distance"),
+        "hours_vs_engagement": weekly_scatter(
+            hybrid_all, employee_id, "Hours_Worked", "Engagement_Score",
+            "hours", "score"),
         "engagement_trend": weekly_compare(
             hybrid_all, employee_id, "Engagement_Score", "mean", "score"),
         "wellbeing_trend": weekly_compare(
@@ -672,6 +714,9 @@ def employee_dashboard(employee_id: str = Query(..., min_length=1)):
             goals_all, employee_id, "Goal_Status"),
         "goal_priority_distribution": distribution_compare(
             goals_all, employee_id, "Priority"),
+        "goal_progress_by_priority": category_compare(
+            goals_all, employee_id, "Priority", "Progress_Percentage",
+            "mean", "progress"),
         "meeting_types": distribution_compare(
             meetings_all, employee_id, "Meeting_Type", id_col="Organizer_ID"),
         "meeting_efficiency_by_type": category_compare(
@@ -861,7 +906,7 @@ def employee_dashboard(employee_id: str = Query(..., min_length=1)):
     if co2 is not None and co2 > 0:
         add_insight(
             insights, "Sustainability", "positive", "Commute emissions saved",
-            f"Your hybrid schedule saved an estimated {co2} kg of CO₂ "
+            f"Your hybrid schedule saved an estimated {co2} kg of CO2 "
             f"({kpis['commute_distance_saved']['value']} km of commuting).",
             {"co2_kg": co2},
         )

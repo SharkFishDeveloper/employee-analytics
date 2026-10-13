@@ -1,4 +1,4 @@
-"""Manager analytics dashboard.
+﻿"""Manager analytics dashboard.
 
 A manager is linked to one or more departments through ``ManagerDepartments.csv``
 and to individual employees through ``Employees.Manager_ID``. This module
@@ -10,6 +10,7 @@ produces:
   individual's performance.
 """
 
+import numpy as np
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Query
 
@@ -42,7 +43,7 @@ DEPT_KPIS = [
     ("meeting_efficiency", "Meeting efficiency", "score", True),
     ("action_completion_rate", "Action completion", "%", True),
     ("hours_worked", "Avg hours worked", "h", True),
-    ("co2_saved", "CO₂ saved", "kg", True),
+    ("co2_saved", "CO2 saved", "kg", True),
     ("goals_overdue", "Overdue goals", "goals", False),
 ]
 
@@ -136,6 +137,10 @@ def build_charts(managed_ids, dept_name_by_id, team_ids, manager_id,
         employees["Employee_ID"].astype(str),
         employees["Department_ID"].astype(str).str.strip(),
     ))
+    emp_name = dict(zip(
+        employees["Employee_ID"].astype(str),
+        employees["Employee_Name"].astype(str),
+    ))
     all_dept_ids = list(dept_name_by_id.keys())
 
     def members_of(dept_id):
@@ -180,6 +185,37 @@ def build_charts(managed_ids, dept_name_by_id, team_ids, manager_id,
                 "company_wellbeing": company_wellbeing,
             }
             for dept_id in managed_ids
+        ]
+
+        # --- Weekly engagement per department (multi-line) ---
+        hybrid_in = hybrid
+        weeks = sorted({
+            str(w) for w in hybrid_in["Week_Start"].dropna()
+        })
+        weekly = []
+        for week in weeks:
+            row = {"week": week}
+            for dept_id in managed_ids:
+                m = members_of(dept_id)
+                sub = hybrid_in[
+                    hybrid_in["Employee_ID"].isin(m)
+                    & (hybrid_in["Week_Start"].astype(str) == week)
+                ]
+                row[dept_name_by_id.get(dept_id, dept_id)] = mean_of(
+                    sub["Engagement_Score"])
+            row["Company"] = mean_of(
+                hybrid_in[hybrid_in["Week_Start"].astype(str) == week][
+                    "Engagement_Score"])
+            weekly.append(row)
+        charts["weekly_engagement_by_department"] = weekly
+
+        # --- Team work-mode mix (donut) ---
+        wm = hybrid_in[
+            hybrid_in["Employee_ID"].isin(team)
+        ]["Work_Mode"].astype(str).str.strip().replace("", "Unknown")
+        charts["team_work_mode_mix"] = [
+            {"Work_Mode": mode, "count": int(count)}
+            for mode, count in wm.value_counts().items()
         ]
 
     # --- Performance profile: ALL departments + your departments average ---
@@ -232,6 +268,20 @@ def build_charts(managed_ids, dept_name_by_id, team_ids, manager_id,
             .str.strip().value_counts().items()
         ]
 
+        # --- Overdue goals per member, by department ---
+        overdue_rows = []
+        for dept_id in managed_ids:
+            m = members_of(dept_id)
+            sub = team_goals[team_goals["Employee_ID"].isin(m)]
+            overdue = (
+                sub["Goal_Status"].astype(str).str.strip().str.lower() == "overdue"
+            ).sum()
+            overdue_rows.append({
+                "department": dept_name_by_id.get(dept_id, dept_id),
+                "overdue_per_member": round(overdue / len(m), 2) if m else None,
+            })
+        charts["overdue_goals_by_department"] = overdue_rows
+
     # --- Learning completion by department ---
     learning = records("Learning.csv")
     if not learning.empty and "Employee_ID" in learning.columns:
@@ -267,7 +317,221 @@ def build_charts(managed_ids, dept_name_by_id, team_ids, manager_id,
         for m in team_ids if m in composite_series
     ]
 
+    # --- Goal health by department (stacked statuses) ---
+    if not goals.empty and "Employee_ID" in goals.columns:
+        goals_status = goals["Goal_Status"].astype(str).str.strip().str.lower()
+        goal_rows = []
+        for dept_id in managed_ids:
+            m = members_of(dept_id)
+            sub = team_goals[team_goals["Employee_ID"].isin(m)]
+            if sub.empty:
+                continue
+            s = sub["Goal_Status"].astype(str).str.strip().str.lower()
+            goal_rows.append({
+                "department": dept_name_by_id.get(dept_id, dept_id),
+                "completed": int(s.eq("completed").sum()),
+                "in_progress": int(s.eq("in progress").sum()),
+                "overdue": int(s.eq("overdue").sum()),
+                "not_started": int(s.eq("not started").sum()),
+            })
+        charts["goal_health_by_department"] = goal_rows
+
+    # --- Monthly objectives pacing (completion rate per month due) ---
+    if not team_goals.empty:
+        months = sorted(team_goals["period"].dropna().unique())
+        pace_rows = []
+        for month in months:
+            sub = team_goals[team_goals["period"] == month]
+            done = int(sub["achieved"].sum())
+            pace_rows.append({
+                "period": month,
+                "completed": done,
+                "total": int(len(sub)),
+                "completion_rate": round(done / len(sub) * 100, 1) if len(sub) else None,
+            })
+        charts["objectives_pacing"] = pace_rows
+
+    # --- Meeting load by member (who carries the meeting burden) ---
+    if not meetings.empty and "Organizer_ID" in meetings.columns:
+        team_meetings = meetings[
+            meetings["Organizer_ID"].astype(str).str.strip().isin(team)
+        ].copy()
+        if not team_meetings.empty:
+            rows = []
+            for m, group in team_meetings.groupby(
+                    team_meetings["Organizer_ID"].astype(str).str.strip()):
+                over60 = group.get("Over_60_Min_Flag")
+                over60_share = None
+                if over60 is not None and not group.empty:
+                    over60_share = (
+                        over60.astype(str).str.strip().str.upper() == "TRUE"
+                    ).mean()
+                rows.append({
+                    "name": emp_name.get(m),
+                    "department": emp_dept_id.get(m),
+                    "meetings": int(len(group)),
+                    "cost_hours": round(float(
+                        pd.to_numeric(group.get("Meeting_Cost_Hours"),
+                                      errors="coerce").sum()), 1),
+                    "over60_share": round(float(over60_share) * 100, 1)
+                    if over60_share is not None else None,
+                })
+            rows.sort(key=lambda r: -(r["cost_hours"] or 0))
+            charts["meeting_load_by_member"] = rows[:12]
+
+    # --- Office vs remote days per week (team usage pattern) ---
+    if not hybrid.empty and "Week_Start" in hybrid.columns:
+        h = hybrid[hybrid["Employee_ID"].astype(str).str.strip().isin(team)].copy()
+        if not h.empty:
+            h["office"] = pd.to_numeric(h.get("Office_Days"), errors="coerce").fillna(0)
+            h["remote"] = pd.to_numeric(h.get("Remote_Days"), errors="coerce").fillna(0)
+            weekly_usage = []
+            for week, group in h.groupby(
+                    h["Week_Start"].astype(str).str.strip()):
+                people = group["Employee_ID"].nunique()
+                weekly_usage.append({
+                    "week": week,
+                    "office_days": round(
+                        float(group["office"].sum()) / people, 1) if people else 0,
+                    "remote_days": round(
+                        float(group["remote"].sum()) / people, 1) if people else 0,
+                })
+            charts["office_vs_remote_weekly"] = sorted(
+                weekly_usage, key=lambda r: r["week"])
+
+    # --- Learning gap by department (share not started) ---
+    if not learning.empty and "Employee_ID" in learning.columns:
+        team_learning = learning[
+            learning["Employee_ID"].astype(str).str.strip().isin(team)
+        ]
+        lr_rows = []
+        for dept_id in managed_ids:
+            sub = team_learning[team_learning["Employee_ID"].isin(members_of(dept_id))]
+            if sub.empty:
+                continue
+            ns = (sub["Course_Status"].astype(str).str.strip().str.lower()
+                  == "not started").mean()
+            lr_rows.append({
+                "department": dept_name_by_id.get(dept_id, dept_id),
+                "not_started_pct": round(float(ns) * 100, 1),
+            })
+        charts["learning_not_started_by_department"] = lr_rows
+
+    # --- Weekly engagement of the lowest-performing team members ---
+    if not hybrid.empty and "Engagement_Score" in hybrid.columns:
+        low_ids = [
+            m for m in team_ids
+            if m in composite_series
+        ]
+        low_ids = sorted(
+            low_ids, key=lambda m: composite_series[m]
+        )[:3]
+        if low_ids:
+            low_rows = []
+            for week in sorted({
+                str(w) for w in hybrid["Week_Start"].dropna() if w == w
+            }):
+                row = {"week": week}
+                for m in low_ids:
+                    sub = hybrid[
+                        hybrid["Employee_ID"].astype(str).str.strip().eq(m)
+                        & (hybrid["Week_Start"].astype(str) == week)
+                    ]
+                    row[emp_name.get(m, m)] = mean_of(sub["Engagement_Score"])
+                row["Company"] = mean_of(
+                    hybrid[hybrid["Week_Start"].astype(str) == week][
+                        "Engagement_Score"])
+                low_rows.append(row)
+            charts["engagement_trend_low"] = low_rows
+
     return charts
+
+
+def build_team_kpis(team_ids, name_by_id, composite_series, employees):
+    """Data-driven health KPIs scoped to the manager's team."""
+    team = set(team_ids)
+    kpis = []
+
+    def add(key, label, value, unit="", note=None):
+        kpis.append({
+            "key": key,
+            "label": label,
+            "value": value,
+            "unit": unit,
+            "note": note,
+        })
+
+    # Goals health
+    goals = records("Goals.csv")
+    team_goals = goals[
+        goals["Employee_ID"].astype(str).str.strip().isin(team)
+    ] if not goals.empty else pd.DataFrame()
+    if not team_goals.empty and "Goal_Status" in team_goals.columns:
+        status = team_goals["Goal_Status"].astype(str).str.strip().str.lower()
+        total = len(team_goals)
+        on_track = int(status.isin(["completed", "in progress"]).sum())
+        overdue = int(status.eq("overdue").sum())
+        priority = team_goals["Priority"].astype(str).str.strip().str.lower()
+        high_overdue = int((status.eq("overdue") & priority.eq("high")).sum())
+        add("goals_on_track", "Goals on track",
+            round(on_track / total * 100, 1) if total else 0, "%",
+            f"{on_track} of {total} team goals")
+        add("goals_overdue", "Overdue goals", overdue, "",
+            f"{high_overdue} of these are High-priority")
+        add("high_priority_overdue", "High-prio overdue", high_overdue)
+
+    # At-risk members (performance rating < 3.2)
+    performance = records("Performance.csv")
+    if not performance.empty and "Employee_ID" in performance.columns:
+        perf = performance.copy()
+        perf["Employee_ID"] = perf["Employee_ID"].astype(str).str.strip()
+        perf["rating"] = pd.to_numeric(perf.get("Overall_Rating"), errors="coerce")
+        low = perf[perf["Employee_ID"].isin(team) & (perf["rating"] < 3.2)]
+        at_risk = low["Employee_ID"].nunique()
+        names = [
+            name_by_id.get(e) for e in
+            low.groupby("Employee_ID")["rating"].mean().nsmallest(4).index
+        ]
+        add("at_risk", "At-risk members", at_risk, "",
+            ", ".join(n for n in names if n) if names else None)
+
+    # Meetings load
+    meetings = records("Meetings.csv")
+    team_meetings = meetings[
+        meetings["Organizer_ID"].astype(str).str.strip().isin(team)
+    ] if not meetings.empty else pd.DataFrame()
+    if not team_meetings.empty:
+        cost = team_meetings["Meeting_Cost_Hours"].astype(float).sum()
+        att = pd.to_numeric(team_meetings.get("Attendance_Rate"), errors="coerce").mean()
+        add("meeting_cost_hours", "Meeting cost-hours",
+            round(float(cost), 1), "h",
+            f"across {len(team_meetings)} meetings")
+        if att is not None and not np.isnan(att):
+            add("meeting_attendance", "Meeting attendance",
+                round(float(att) * 100, 1), "%")
+
+    # Learning gap
+    learning = records("Learning.csv")
+    team_learning = learning[
+        learning["Employee_ID"].astype(str).str.strip().isin(team)
+    ] if not learning.empty else pd.DataFrame()
+    if not team_learning.empty and "Course_Status" in team_learning.columns:
+        ns = (team_learning["Course_Status"].astype(str).str.strip().str.lower()
+              == "not started").sum()
+        add("learning_not_started", "Learning not started", int(ns), "",
+            f"of {len(team_learning)} assigned courses")
+
+    # Hybrid adoption
+    hybrid = records("HybridWork.csv")
+    if not hybrid.empty and "Employee_ID" in hybrid.columns:
+        h = hybrid[hybrid["Employee_ID"].astype(str).str.strip().isin(team)]
+        if not h.empty and "Work_Mode" in h.columns:
+            flex = h["Work_Mode"].astype(str).str.strip().str.lower().isin(
+                ["hybrid", "remote"]).mean()
+            add("hybrid_share", "Hybrid / remote weeks",
+                round(float(flex) * 100, 1), "%")
+
+    return kpis
 
 
 def add_insight(insights, category, severity, title, message, metric=None):
@@ -467,6 +731,11 @@ def manager_dashboard(manager_id: str = Query(..., min_length=1)):
         if key not in ("ranking", "department_ranking")
     }
 
+    # ---- team-level KPIs (data-driven) ----
+    team_kpis = build_team_kpis(
+        team_ids, name_by_id, composite_series, employees,
+    )
+
     manager_ids = employees[
         employees["User_Role"].astype(str).str.strip().str.lower() == "manager"
     ]["Employee_ID"].astype(str).tolist()
@@ -555,6 +824,127 @@ def manager_dashboard(manager_id: str = Query(..., min_length=1)):
             {"score": manager_benchmark["employee_value"]},
         )
 
+    # ---- data-driven team insights ----
+    team_set = set(team_ids)
+    performance_csv = records("Performance.csv")
+    if not performance_csv.empty and "Employee_ID" in performance_csv.columns:
+        p = performance_csv.copy()
+        p["Employee_ID"] = p["Employee_ID"].astype(str).str.strip()
+        p["rating"] = pd.to_numeric(p.get("Overall_Rating"), errors="coerce")
+        low = p[p["Employee_ID"].isin(team_set) & (p["rating"] < 3.2)]
+        low_ranked = low.groupby("Employee_ID")["rating"].mean().sort_values()
+        if len(low_ranked):
+            names = [name_by_id.get(e) for e in low_ranked.index[:4]]
+            add_insight(
+                insights, "People", "warning",
+                f"{len(low_ranked)} team member(s) need support",
+                "Rated below 3.2 on their latest review: "
+                + ", ".join(n for n in names if n)
+                + ". Consider coaching or a workload review.",
+                {"count": int(len(low_ranked))},
+            )
+
+    goals_csv = records("Goals.csv")
+    if not goals_csv.empty and "Goal_Status" in goals_csv.columns:
+        tg = goals_csv[goals_csv["Employee_ID"].astype(str).str.strip()
+                       .isin(team_set)]
+        status = tg["Goal_Status"].astype(str).str.strip().str.lower()
+        priority = tg["Priority"].astype(str).str.strip().str.lower()
+        high_od = tg[status.eq("overdue") & priority.eq("high")]
+        if len(high_od):
+            add_insight(
+                insights, "Goals", "warning",
+                f"{len(high_od)} high-priority goal(s) overdue",
+                "These are the most urgent items to unblock: "
+                + ", ".join(
+                    str(t)[:40] for t in high_od["Goal_Title"].head(3)
+                ) + ".",
+                {"count": int(len(high_od))},
+            )
+        not_started = int(status.eq("not started").sum())
+        if not_started >= 5:
+            add_insight(
+                insights, "Goals", "info",
+                f"{not_started} goals not started",
+                f"{not_started} of {len(tg)} team goals haven't been started yet. "
+                "Confirm owners and kick-off dates.",
+                {"count": not_started},
+            )
+
+    meetings_csv = records("Meetings.csv")
+    if not meetings_csv.empty and "Organizer_ID" in meetings_csv.columns:
+        tm = meetings_csv[meetings_csv["Organizer_ID"].astype(str).str.strip()
+                          .isin(team_set)]
+        if not tm.empty:
+            over60 = tm.get("Over_60_Min_Flag")
+            if over60 is not None:
+                share = (over60.astype(str).str.strip().str.upper() == "TRUE").mean()
+                if share >= 0.2:
+                    add_insight(
+                        insights, "Meetings", "warning",
+                        f"{round(share * 100)}% of meetings run over 60 minutes",
+                        f"{int((over60.astype(str).str.strip().str.upper() == 'TRUE').sum())} "
+                        f"of {len(tm)} team meetings exceed an hour. Shorter, "
+                        "agenda-led meetings free up focus time.",
+                        {"over60_share": round(float(share) * 100, 1)},
+                    )
+            cost = pd.to_numeric(tm.get("Meeting_Cost_Hours"),
+                                 errors="coerce").sum()
+            add_insight(
+                insights, "Meetings", "info",
+                "Team meeting load",
+                f"Your teams spent {round(float(cost), 1)} meeting-hours across "
+                f"{len(tm)} meetings. Watch for overlap with focus work.",
+                {"cost_hours": round(float(cost), 1)},
+            )
+
+    learning_csv = records("Learning.csv")
+    if not learning_csv.empty and "Course_Status" in learning_csv.columns:
+        tl = learning_csv[learning_csv["Employee_ID"].astype(str).str.strip()
+                          .isin(team_set)]
+        if not tl.empty:
+            ns = (tl["Course_Status"].astype(str).str.strip().str.lower()
+                  == "not started").mean()
+            if ns >= 0.25:
+                add_insight(
+                    insights, "Learning", "warning",
+                    f"{round(ns * 100)}% of learning not started",
+                    f"{int(ns * len(tl))} of {len(tl)} assigned courses haven't been "
+                    "started. Protect time for development.",
+                    {"not_started_pct": round(float(ns) * 100, 1)},
+                )
+
+    hybrid_csv = records("HybridWork.csv")
+    if (not hybrid_csv.empty and "Employee_ID" in hybrid_csv.columns
+            and "Wellbeing_Score" in hybrid_csv.columns):
+        th = hybrid_csv[hybrid_csv["Employee_ID"].astype(str).str.strip()
+                        .isin(team_set)].copy()
+        if not th.empty:
+            th["week"] = th["Week_Start"].astype(str)
+            weeks = sorted(th["week"].unique())
+            if len(weeks) >= 2:
+                half = max(1, len(weeks) // 2)
+                early = set(weeks[:half])
+                late = set(weeks[half:])
+                th["wellbeing"] = pd.to_numeric(th["Wellbeing_Score"],
+                                                errors="coerce")
+                drops = []
+                for emp, group in th.groupby("Employee_ID"):
+                    e = group[group["week"].isin(early)]["wellbeing"].mean()
+                    l = group[group["week"].isin(late)]["wellbeing"].mean()
+                    if pd.notna(e) and pd.notna(l) and (e - l) >= 0.6:
+                        drops.append((name_by_id.get(emp), round(float(e - l), 1)))
+                if drops:
+                    drops.sort(key=lambda r: -r[1])
+                    add_insight(
+                        insights, "Wellbeing", "warning",
+                        f"{len(drops)} team member(s) trending down on wellbeing",
+                        "Wellbeing dropped over recent weeks for: "
+                        + ", ".join(f"{n} (-{d})" for n, d in drops[:4])
+                        + ". A quick check-in could help.",
+                        {"count": len(drops)},
+                    )
+
     severity_order = {"warning": 0, "info": 1, "positive": 2}
     insights.sort(key=lambda i: severity_order.get(i["severity"], 3))
 
@@ -621,6 +1011,7 @@ def manager_dashboard(manager_id: str = Query(..., min_length=1)):
         },
         "departments": department_cards,
         "team": team,
+        "team_kpis": team_kpis,
         "insights": insights,
         "charts": charts,
         "context": {

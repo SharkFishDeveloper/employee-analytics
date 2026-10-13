@@ -12,6 +12,8 @@ import math
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Query
 
+from routes.recommendations import employee_recommendations
+
 
 router = APIRouter(prefix="/employee", tags=["Employee Dashboard"])
 
@@ -229,7 +231,10 @@ def build_benchmark(series, employee_id, dept_by_id, department,
 
 
 def _standing_label(percentile, higher_is_better=True):
-    score = percentile if higher_is_better else 100 - percentile
+    # ``percentile`` is already a goodness percentile: build_benchmark flips
+    # the comparison direction so a higher value always means a better rank,
+    # regardless of whether the underlying metric is higher- or lower-is-better.
+    score = percentile
     if score >= 90:
         return "Top 10%"
     if score >= 75:
@@ -384,7 +389,7 @@ def benchmark_insight(insights, kpi, category, good_threshold, low_threshold,
     if percentile >= 90:
         add_insight(
             insights, category, "positive", good_title,
-            f"{kpi['label']} is {fmt(value)} â€” in the {benchmark['standing']} "
+            f"{kpi['label']} is {fmt(value)} in the {benchmark['standing']} "
             f"of {benchmark['peers']} employees (company avg {fmt(company)}).",
             {"value": value, "company_avg": company, "percentile": percentile},
         )
@@ -995,5 +1000,6 @@ def employee_dashboard(employee_id: str = Query(..., min_length=1)):
         "charts": charts,
         "details": details,
         "insights": insights,
+        "recommendations": employee_recommendations(kpis),
         "context": context,
     }

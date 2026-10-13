@@ -26,6 +26,7 @@ from routes.employee import (
     employee_dashboard,
     ids_equal,
 )
+from routes.recommendations import manager_recommendations
 
 
 router = APIRouter(prefix="/manager", tags=["Manager Dashboard"])
@@ -1014,6 +1015,9 @@ def manager_dashboard(manager_id: str = Query(..., min_length=1)):
         "team_kpis": team_kpis,
         "insights": insights,
         "charts": charts,
+        "recommendations": manager_recommendations(
+            own["kpis"], department_cards, team, team_kpis,
+        ),
         "context": {
             "company_composite": company_composite,
             "total_employees": int(len(employees)),

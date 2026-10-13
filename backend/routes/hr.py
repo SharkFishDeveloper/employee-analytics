@@ -19,6 +19,7 @@ from routes.manager import (
     composite_score,
     dept_value,
 )
+from routes.recommendations import hr_recommendations
 
 
 router = APIRouter(prefix="/hr", tags=["HR Dashboard"])
@@ -695,6 +696,9 @@ def hr_dashboard(employee_id: str | None = Query(None)):
         "org_kpis": org_kpis,
         "charts": charts,
         "insights": insights,
+        "recommendations": hr_recommendations(
+            departments, managers, org_kpis, charts,
+        ),
         "context": {
             "locations": sorted(employees["Location"].astype(str).str.strip().unique().tolist()),
             "review_period": "2026-09",

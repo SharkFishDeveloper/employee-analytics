@@ -1,0 +1,184 @@
+Learning_ID,Employee_ID,Department,Course_Name,Skill_Category,Assigned_Date,Assigned_Hours,Completed_Hours,Course_Status,Completion_Rate,Assessment_Score,Certification_Earned,Learning_Points
+L0001,E001,Engineering,Presenting with Impact,Communication,2026-09-17,8,5,In Progress,0.62,62,No,40
+L0002,E001,Engineering,Effective Business Writing,Communication,2026-06-03,8,8,Completed,1.0,90,No,80
+L0003,E001,Engineering,Phishing Defense,Security,2026-06-21,6,6,Completed,1.0,76,No,60
+L0004,E001,Engineering,Cloud Architecture Fundamentals,Technical,2026-07-03,24,0,Not Started,0.0,0,No,0
+L0005,E002,Product,Code of Conduct,Compliance,2026-09-24,2,2,Completed,1.0,72,No,20
+L0006,E002,Product,Phishing Defense,Security,2026-07-08,6,6,Completed,1.0,93,Yes,80
+L0007,E002,Product,Agile Foundations,Product,2026-08-10,10,10,Completed,1.0,77,No,100
+L0008,E003,Sales,Financial Compliance,Compliance,2026-09-13,9,9,Completed,1.0,81,Yes,110
+L0009,E003,Sales,Effective Business Writing,Communication,2026-09-25,6,6,Completed,1.0,83,No,60
+L0010,E003,Sales,Active Listening Skills,Communication,2026-09-14,4,3,In Progress,0.75,55,No,24
+L0011,E003,Sales,Customer Research Methods,Product,2026-07-18,8,6,In Progress,0.75,74,No,48
+L0012,E003,Sales,Product Discovery,Product,2026-08-15,12,12,Completed,1.0,84,No,120
+L0013,E004,Operations,Strategic Thinking,Leadership,2026-09-07,12,12,Completed,1.0,92,Yes,140
+L0014,E004,Operations,Phishing Defense,Security,2026-06-01,2,0,Not Started,0.0,0,No,0
+L0015,E004,Operations,Anti-Harassment Training,Compliance,2026-09-13,5,5,Completed,1.0,99,Yes,70
+L0016,E004,Operations,Incident Response Basics,Security,2026-06-14,8,8,Completed,1.0,79,No,80
+L0017,E005,Human Resources,Data Modeling with SQL,Technical,2026-08-25,12,12,Completed,1.0,83,Yes,140
+L0018,E005,Human Resources,Strategic Thinking,Leadership,2026-08-23,14,7,In Progress,0.5,77,No,56
+L0019,E006,Engineering,Financial Compliance,Compliance,2026-08-21,9,3,In Progress,0.33,56,No,24
+L0020,E006,Engineering,Strategic Thinking,Leadership,2026-09-22,12,7,In Progress,0.58,63,No,56
+L0021,E007,Human Resources,Active Listening Skills,Communication,2026-06-21,4,4,Completed,1.0,94,No,40
+L0022,E007,Human Resources,Presenting with Impact,Communication,2026-06-17,12,12,Completed,1.0,88,No,120
+L0023,E007,Human Resources,Anti-Harassment Training,Compliance,2026-07-27,3,0,Not Started,0.0,0,No,0
+L0024,E008,Engineering,Active Listening Skills,Communication,2026-06-04,8,5,In Progress,0.62,79,No,40
+L0025,E008,Engineering,Data Visualization,Data,2026-09-23,12,4,In Progress,0.33,61,No,32
+L0026,E008,Engineering,Cross-Cultural Communication,Communication,2026-09-01,8,8,Completed,1.0,75,No,80
+L0027,E008,Engineering,Data Privacy and GDPR,Security,2026-09-17,5,5,Completed,1.0,92,Yes,70
+L0028,E008,Engineering,Phishing Defense,Security,2026-07-12,6,4,In Progress,0.67,60,No,32
+L0029,E009,Engineering,Data Visualization,Data,2026-06-15,14,14,Completed,1.0,100,No,140
+L0030,E009,Engineering,Secure Coding Practices,Technical,2026-07-26,10,10,Completed,1.0,71,No,100
+L0031,E009,Engineering,Effective Business Writing,Communication,2026-09-15,6,6,Completed,1.0,98,No,60
+L0032,E010,Engineering,Customer Research Methods,Product,2026-09-04,8,8,Completed,1.0,72,No,80
+L0033,E010,Engineering,Financial Compliance,Compliance,2026-07-16,7,7,Completed,1.0,70,No,70
+L0034,E011,Engineering,Workplace Safety,Compliance,2026-06-04,4,1,In Progress,0.25,73,No,8
+L0035,E011,Engineering,Analytics with Spreadsheets,Data,2026-08-16,8,2,In Progress,0.25,74,No,16
+L0036,E011,Engineering,Data Modeling with SQL,Technical,2026-08-22,16,9,In Progress,0.56,65,No,72
+L0037,E011,Engineering,Advanced Python,Technical,2026-07-12,18,0,Not Started,0.0,0,No,0
+L0038,E011,Engineering,Cloud Architecture Fundamentals,Technical,2026-08-28,28,28,Completed,1.0,71,No,280
+L0039,E012,Engineering,Product Discovery,Product,2026-06-20,16,12,In Progress,0.75,59,No,96
+L0040,E012,Engineering,Data Modeling with SQL,Technical,2026-08-23,12,0,Not Started,0.0,0,No,0
+L0041,E012,Engineering,Advanced Python,Technical,2026-09-17,16,16,Completed,1.0,89,Yes,180
+L0042,E012,Engineering,Information Security Awareness,Security,2026-08-01,8,2,In Progress,0.25,75,No,16
+L0043,E013,Engineering,Customer Research Methods,Product,2026-09-24,10,3,In Progress,0.3,70,No,24
+L0044,E013,Engineering,Cloud Architecture Fundamentals,Technical,2026-09-22,24,24,Completed,1.0,100,Yes,260
+L0045,E013,Engineering,Product Discovery,Product,2026-07-28,12,5,In Progress,0.42,61,No,40
+L0046,E013,Engineering,Statistics for Analysts,Data,2026-06-10,14,14,Completed,1.0,95,No,140
+L0047,E014,Engineering,Modern JavaScript,Technical,2026-06-04,14,14,Completed,1.0,75,No,140
+L0048,E014,Engineering,Information Security Awareness,Security,2026-06-06,8,0,Not Started,0.0,0,No,0
+L0049,E014,Engineering,Data Modeling with SQL,Technical,2026-08-08,14,0,Not Started,0.0,0,No,0
+L0050,E014,Engineering,Incident Response Basics,Security,2026-06-22,8,6,In Progress,0.75,76,No,48
+L0051,E014,Engineering,Workplace Safety,Compliance,2026-09-03,2,0,Not Started,0.0,0,No,0
+L0052,E015,Engineering,Customer Research Methods,Product,2026-09-21,8,3,In Progress,0.38,77,No,24
+L0053,E015,Engineering,Presenting with Impact,Communication,2026-08-03,12,4,In Progress,0.33,58,No,32
+L0054,E015,Engineering,Code of Conduct,Compliance,2026-07-24,2,2,Completed,1.0,93,Yes,40
+L0055,E015,Engineering,Analytics with Spreadsheets,Data,2026-09-19,8,2,In Progress,0.25,65,No,16
+L0056,E016,Engineering,Cross-Cultural Communication,Communication,2026-08-26,6,5,In Progress,0.83,65,No,40
+L0057,E016,Engineering,Cloud Architecture Fundamentals,Technical,2026-06-13,24,13,In Progress,0.54,62,No,104
+L0058,E017,Engineering,Phishing Defense,Security,2026-08-27,6,6,Completed,1.0,96,Yes,80
+L0059,E017,Engineering,Customer Research Methods,Product,2026-07-20,8,8,Completed,1.0,84,No,80
+L0060,E018,Engineering,Secure Coding Practices,Technical,2026-06-09,10,4,In Progress,0.4,77,No,32
+L0061,E018,Engineering,Statistics for Analysts,Data,2026-09-02,18,6,In Progress,0.33,64,No,48
+L0062,E018,Engineering,Workplace Safety,Compliance,2026-07-28,4,4,Completed,1.0,92,Yes,60
+L0063,E018,Engineering,Customer Research Methods,Product,2026-07-28,8,2,In Progress,0.25,82,No,16
+L0064,E019,Engineering,Statistics for Analysts,Data,2026-09-11,14,0,Not Started,0.0,0,No,0
+L0065,E019,Engineering,Strategic Thinking,Leadership,2026-09-13,16,13,In Progress,0.81,79,No,104
+L0066,E019,Engineering,Cross-Cultural Communication,Communication,2026-07-23,6,2,In Progress,0.33,77,No,16
+L0067,E019,Engineering,Agile Foundations,Product,2026-06-28,10,10,Completed,1.0,80,No,100
+L0068,E019,Engineering,Workplace Safety,Compliance,2026-07-15,4,4,Completed,1.0,75,No,40
+L0069,E020,Engineering,Cross-Cultural Communication,Communication,2026-06-22,6,1,In Progress,0.17,78,No,8
+L0070,E020,Engineering,Secure Coding Practices,Technical,2026-07-02,10,10,Completed,1.0,83,Yes,120
+L0071,E020,Engineering,Effective Business Writing,Communication,2026-07-02,6,6,Completed,1.0,85,No,60
+L0072,E020,Engineering,Product Discovery,Product,2026-08-19,12,0,Not Started,0.0,0,No,0
+L0073,E020,Engineering,Statistics for Analysts,Data,2026-09-08,18,0,Not Started,0.0,0,No,0
+L0074,E021,Engineering,Data Modeling with SQL,Technical,2026-07-21,16,16,Completed,1.0,92,Yes,180
+L0075,E021,Engineering,Presenting with Impact,Communication,2026-06-25,12,10,In Progress,0.83,76,No,80
+L0076,E022,Product,Customer Research Methods,Product,2026-06-03,12,12,Completed,1.0,73,No,120
+L0077,E022,Product,Agile Foundations,Product,2026-07-01,6,6,Completed,1.0,91,No,60
+L0078,E022,Product,Financial Compliance,Compliance,2026-06-26,9,9,Completed,1.0,93,Yes,110
+L0079,E022,Product,Strategic Thinking,Leadership,2026-09-10,12,12,Completed,1.0,90,Yes,140
+L0080,E022,Product,Active Listening Skills,Communication,2026-07-13,4,4,Completed,1.0,72,No,40
+L0081,E023,Product,Strategic Thinking,Leadership,2026-06-25,16,16,Completed,1.0,96,Yes,180
+L0082,E023,Product,Phishing Defense,Security,2026-06-06,2,0,Not Started,0.0,0,No,0
+L0083,E024,Product,Advanced Python,Technical,2026-07-21,18,18,Completed,1.0,74,No,180
+L0084,E024,Product,Phishing Defense,Security,2026-06-03,2,2,Completed,1.0,78,No,20
+L0085,E024,Product,Information Security Awareness,Security,2026-07-14,4,2,In Progress,0.5,72,No,16
+L0086,E025,Product,Presenting with Impact,Communication,2026-08-22,8,0,Not Started,0.0,0,No,0
+L0087,E025,Product,Cross-Cultural Communication,Communication,2026-08-17,10,10,Completed,1.0,85,No,100
+L0088,E026,Product,Anti-Harassment Training,Compliance,2026-07-05,3,1,In Progress,0.33,56,No,8
+L0089,E026,Product,Phishing Defense,Security,2026-07-05,4,0,Not Started,0.0,0,No,0
+L0090,E026,Product,Data Privacy and GDPR,Security,2026-09-03,5,2,In Progress,0.4,78,No,16
+L0091,E026,Product,Effective Business Writing,Communication,2026-07-13,8,8,Completed,1.0,90,No,80
+L0092,E027,Product,Kubernetes in Practice,Technical,2026-08-21,20,5,In Progress,0.25,78,No,40
+L0093,E027,Product,Active Listening Skills,Communication,2026-07-14,4,2,In Progress,0.5,75,No,16
+L0094,E027,Product,Workplace Safety,Compliance,2026-09-13,2,2,Completed,1.0,95,Yes,40
+L0095,E027,Product,Managing Change,Leadership,2026-07-03,8,0,Not Started,0.0,0,No,0
+L0096,E027,Product,Data Visualization,Data,2026-09-03,12,12,Completed,1.0,73,No,120
+L0097,E028,Product,Financial Compliance,Compliance,2026-07-09,7,7,Completed,1.0,95,Yes,90
+L0098,E028,Product,Kubernetes in Practice,Technical,2026-09-04,20,20,Completed,1.0,77,No,200
+L0099,E028,Product,Coaching and Feedback,Leadership,2026-08-19,10,10,Completed,1.0,93,Yes,120
+L0100,E028,Product,Leading High-Performing Teams,Leadership,2026-08-18,20,20,Completed,1.0,81,Yes,220
+L0101,E029,Product,Anti-Harassment Training,Compliance,2026-09-06,5,0,Not Started,0.0,0,No,0
+L0102,E029,Product,Data Modeling with SQL,Technical,2026-09-16,14,8,In Progress,0.57,80,No,64
+L0103,E029,Product,Cloud Architecture Fundamentals,Technical,2026-07-22,24,24,Completed,1.0,91,Yes,260
+L0104,E029,Product,Modern JavaScript,Technical,2026-08-02,14,14,Completed,1.0,88,Yes,160
+L0105,E030,Sales,Data Visualization,Data,2026-09-17,14,4,In Progress,0.29,66,No,32
+L0106,E030,Sales,Analytics with Spreadsheets,Data,2026-07-10,10,10,Completed,1.0,83,No,100
+L0107,E030,Sales,Presenting with Impact,Communication,2026-09-25,8,0,Not Started,0.0,0,No,0
+L0108,E030,Sales,Workplace Safety,Compliance,2026-07-03,4,2,In Progress,0.5,57,No,16
+L0109,E031,Sales,Code of Conduct,Compliance,2026-06-14,4,2,In Progress,0.5,82,No,16
+L0110,E031,Sales,Cloud Architecture Fundamentals,Technical,2026-06-13,24,24,Completed,1.0,86,Yes,260
+L0111,E031,Sales,Kubernetes in Practice,Technical,2026-06-23,20,15,In Progress,0.75,78,No,120
+L0112,E032,Sales,Data Visualization,Data,2026-07-06,10,8,In Progress,0.8,76,No,64
+L0113,E032,Sales,Phishing Defense,Security,2026-08-02,2,2,Completed,1.0,74,No,20
+L0114,E032,Sales,Statistics for Analysts,Data,2026-08-04,18,18,Completed,1.0,75,No,180
+L0115,E032,Sales,Coaching and Feedback,Leadership,2026-07-27,12,0,Not Started,0.0,0,No,0
+L0116,E032,Sales,Presenting with Impact,Communication,2026-08-09,8,8,Completed,1.0,85,No,80
+L0117,E033,Sales,Advanced Python,Technical,2026-08-20,20,20,Completed,1.0,79,No,200
+L0118,E033,Sales,Statistics for Analysts,Data,2026-08-10,18,18,Completed,1.0,70,No,180
+L0119,E033,Sales,Financial Compliance,Compliance,2026-08-12,7,7,Completed,1.0,81,Yes,90
+L0120,E034,Sales,Data Modeling with SQL,Technical,2026-07-14,16,16,Completed,1.0,86,Yes,180
+L0121,E034,Sales,Managing Change,Leadership,2026-06-05,8,0,Not Started,0.0,0,No,0
+L0122,E035,Sales,Presenting with Impact,Communication,2026-07-18,10,10,Completed,1.0,98,No,100
+L0123,E035,Sales,Incident Response Basics,Security,2026-09-06,8,8,Completed,1.0,84,Yes,100
+L0124,E035,Sales,Strategic Thinking,Leadership,2026-06-12,12,12,Completed,1.0,83,Yes,140
+L0125,E035,Sales,Coaching and Feedback,Leadership,2026-06-05,10,10,Completed,1.0,79,No,100
+L0126,E036,Sales,Managing Change,Leadership,2026-08-04,8,0,Not Started,0.0,0,No,0
+L0127,E036,Sales,Statistics for Analysts,Data,2026-07-11,18,18,Completed,1.0,85,No,180
+L0128,E036,Sales,Leading High-Performing Teams,Leadership,2026-09-05,20,15,In Progress,0.75,81,No,120
+L0129,E036,Sales,Cloud Architecture Fundamentals,Technical,2026-06-05,24,0,Not Started,0.0,0,No,0
+L0130,E036,Sales,Modern JavaScript,Technical,2026-07-02,14,14,Completed,1.0,70,No,140
+L0131,E037,Sales,Managing Change,Leadership,2026-09-03,12,12,Completed,1.0,79,No,120
+L0132,E037,Sales,Anti-Harassment Training,Compliance,2026-07-08,7,7,Completed,1.0,74,No,70
+L0133,E037,Sales,Statistics for Analysts,Data,2026-07-22,16,11,In Progress,0.69,77,No,88
+L0134,E037,Sales,Advanced Python,Technical,2026-06-23,20,20,Completed,1.0,92,Yes,220
+L0135,E038,Sales,Effective Business Writing,Communication,2026-09-02,6,6,Completed,1.0,74,No,60
+L0136,E038,Sales,Customer Research Methods,Product,2026-07-14,10,0,Not Started,0.0,0,No,0
+L0137,E038,Sales,Code of Conduct,Compliance,2026-09-14,2,1,In Progress,0.5,56,No,8
+L0138,E039,Operations,Data Visualization,Data,2026-09-21,14,14,Completed,1.0,86,No,140
+L0139,E039,Operations,Financial Compliance,Compliance,2026-08-09,5,5,Completed,1.0,78,No,50
+L0140,E039,Operations,Presenting with Impact,Communication,2026-06-06,10,3,In Progress,0.3,83,No,24
+L0141,E039,Operations,Leading High-Performing Teams,Leadership,2026-08-07,16,16,Completed,1.0,91,Yes,180
+L0142,E040,Operations,Incident Response Basics,Security,2026-09-12,10,10,Completed,1.0,100,Yes,120
+L0143,E040,Operations,Active Listening Skills,Communication,2026-06-22,6,6,Completed,1.0,73,No,60
+L0144,E040,Operations,Anti-Harassment Training,Compliance,2026-08-24,3,3,Completed,1.0,93,Yes,50
+L0145,E040,Operations,Data Modeling with SQL,Technical,2026-07-19,14,14,Completed,1.0,78,No,140
+L0146,E041,Operations,Kubernetes in Practice,Technical,2026-07-07,20,20,Completed,1.0,100,Yes,220
+L0147,E041,Operations,Data Modeling with SQL,Technical,2026-06-18,16,0,Not Started,0.0,0,No,0
+L0148,E041,Operations,Secure Coding Practices,Technical,2026-07-18,12,12,Completed,1.0,85,Yes,140
+L0149,E041,Operations,Financial Compliance,Compliance,2026-09-18,5,5,Completed,1.0,76,No,50
+L0150,E041,Operations,Statistics for Analysts,Data,2026-08-12,16,0,Not Started,0.0,0,No,0
+L0151,E042,Operations,Financial Compliance,Compliance,2026-06-06,9,9,Completed,1.0,99,Yes,110
+L0152,E042,Operations,Data Visualization,Data,2026-06-26,12,3,In Progress,0.25,56,No,24
+L0153,E042,Operations,Data Modeling with SQL,Technical,2026-06-06,12,5,In Progress,0.42,76,No,40
+L0154,E042,Operations,Managing Change,Leadership,2026-09-13,12,5,In Progress,0.42,79,No,40
+L0155,E042,Operations,Kubernetes in Practice,Technical,2026-07-19,22,22,Completed,1.0,70,No,220
+L0156,E043,Operations,Code of Conduct,Compliance,2026-08-28,6,4,In Progress,0.67,63,No,32
+L0157,E043,Operations,Data Visualization,Data,2026-06-06,10,10,Completed,1.0,78,No,100
+L0158,E043,Operations,Advanced Python,Technical,2026-08-02,16,16,Completed,1.0,77,No,160
+L0159,E044,Operations,Active Listening Skills,Communication,2026-07-18,4,1,In Progress,0.25,81,No,8
+L0160,E044,Operations,Secure Coding Practices,Technical,2026-08-11,10,10,Completed,1.0,81,Yes,120
+L0161,E044,Operations,Customer Research Methods,Product,2026-08-24,8,0,Not Started,0.0,0,No,0
+L0162,E045,Operations,Managing Change,Leadership,2026-06-27,10,0,Not Started,0.0,0,No,0
+L0163,E045,Operations,Anti-Harassment Training,Compliance,2026-08-06,5,5,Completed,1.0,100,Yes,70
+L0164,E045,Operations,Cross-Cultural Communication,Communication,2026-06-24,8,0,Not Started,0.0,0,No,0
+L0165,E046,Human Resources,Financial Compliance,Compliance,2026-07-19,5,2,In Progress,0.4,63,No,16
+L0166,E046,Human Resources,Active Listening Skills,Communication,2026-09-12,8,8,Completed,1.0,77,No,80
+L0167,E046,Human Resources,Customer Research Methods,Product,2026-06-16,8,0,Not Started,0.0,0,No,0
+L0168,E046,Human Resources,Anti-Harassment Training,Compliance,2026-07-07,3,3,Completed,1.0,96,Yes,50
+L0169,E046,Human Resources,Phishing Defense,Security,2026-07-21,6,0,Not Started,0.0,0,No,0
+L0170,E047,Human Resources,Advanced Python,Technical,2026-08-08,20,6,In Progress,0.3,59,No,48
+L0171,E047,Human Resources,Cross-Cultural Communication,Communication,2026-08-24,10,0,Not Started,0.0,0,No,0
+L0172,E047,Human Resources,Modern JavaScript,Technical,2026-08-13,14,10,In Progress,0.71,74,No,80
+L0173,E047,Human Resources,Agile Foundations,Product,2026-08-08,6,6,Completed,1.0,70,No,60
+L0174,E048,Human Resources,Active Listening Skills,Communication,2026-06-18,4,1,In Progress,0.25,80,No,8
+L0175,E048,Human Resources,Secure Coding Practices,Technical,2026-06-07,12,0,Not Started,0.0,0,No,0
+L0176,E049,Human Resources,Incident Response Basics,Security,2026-07-08,10,4,In Progress,0.4,70,No,32
+L0177,E049,Human Resources,Analytics with Spreadsheets,Data,2026-06-01,8,3,In Progress,0.38,72,No,24
+L0178,E049,Human Resources,Code of Conduct,Compliance,2026-06-17,2,2,Completed,1.0,79,No,20
+L0179,E050,Human Resources,Secure Coding Practices,Technical,2026-07-22,10,10,Completed,1.0,79,No,100
+L0180,E050,Human Resources,Advanced Python,Technical,2026-06-16,20,13,In Progress,0.65,83,No,104
+L0181,E050,Human Resources,Presenting with Impact,Communication,2026-07-04,8,0,Not Started,0.0,0,No,0
+L0182,E050,Human Resources,Managing Change,Leadership,2026-08-04,10,10,Completed,1.0,89,Yes,120
+L0183,E050,Human Resources,Strategic Thinking,Leadership,2026-06-02,14,0,Not Started,0.0,0,No,0

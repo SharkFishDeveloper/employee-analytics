@@ -1,0 +1,9 @@
+Manager_ID,Department_ID,Assignment_Type,Start_Date,End_Date
+E001,D001,Primary,2015-03-01,
+E002,D002,Primary,2016-09-01,
+E003,D003,Primary,2015-06-01,
+E004,D004,Primary,2017-04-01,
+E005,D005,Primary,2018-01-10,
+E006,D001,Primary,2021-05-03,
+E006,D002,Secondary,2023-08-01,
+E001,D002,Secondary,2022-01-04,

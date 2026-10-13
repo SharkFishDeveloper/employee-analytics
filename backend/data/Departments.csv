@@ -1,0 +1,6 @@
+Department_ID,Department_Name,Department_Head_ID,Location,Created_Date,Department_Status
+D001,Engineering,E001,San Francisco,2015-01-15,Active
+D002,Product,E002,San Francisco,2016-09-01,Active
+D003,Sales,E003,New York,2015-06-01,Active
+D004,Operations,E004,Austin,2017-03-20,Active
+D005,Human Resources,E005,New York,2018-01-10,Active

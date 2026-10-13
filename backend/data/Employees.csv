@@ -1,0 +1,51 @@
+Employee_ID,Employee_Name,Department,Job_Role,Location,Manager_ID,Join_Date,Employment_Type,Work_Preference,Active_Status,User_Role,Department_ID,Employment_Status,Last_Review_Date
+E001,Idris Moreau,Engineering,Engineering Director,San Francisco,,2015-02-02,Full-time,On-site,Active,manager,D001,Active,2026-09-18
+E002,Sofia Aziz,Product,Product Lead,San Francisco,,2016-08-15,Full-time,Hybrid,Active,manager,D002,Active,2026-09-18
+E003,Ibrahim Aziz,Sales,Sales Manager,New York,,2015-05-04,Full-time,On-site,Active,manager,D003,Active,2026-09-18
+E004,Victor Tanaka,Operations,Operations Manager,Austin,,2017-03-06,Full-time,Hybrid,Active,manager,D004,Active,2026-09-18
+E005,Andre Cohen,Human Resources,Head of People,New York,,2018-01-08,Full-time,Hybrid,Active,manager,D005,Active,2026-09-18
+E006,Owen Haddad,Engineering,Engineering Manager,San Francisco,E001,2021-05-03,Full-time,Hybrid,Active,manager,D001,Active,2026-09-18
+E007,Sofia Fontaine,Human Resources,HR Business Partner,New York,E005,2019-07-22,Full-time,Hybrid,Active,hr,D005,Active,2026-09-19
+E008,Fatima Cohen,Engineering,Software Engineer,San Francisco,E006,2021-05-09,Full-time,Remote,Active,employee,D001,Active,2026-08-04
+E009,Samuel Aziz,Engineering,Senior Software Engineer,Chicago,E006,2021-04-12,Full-time,On-site,Active,employee,D001,Active,2026-06-24
+E010,Omar Nasser,Engineering,Staff Engineer,San Francisco,E006,2020-09-19,Full-time,Hybrid,Active,employee,D001,Active,2026-06-07
+E011,Anya Bianchi,Engineering,QA Engineer,San Francisco,E006,2022-10-27,Full-time,Hybrid,Active,employee,D001,Active,2026-07-09
+E012,Jamal Alvarez,Engineering,DevOps Engineer,San Francisco,E006,2023-12-21,Full-time,Hybrid,Active,employee,D001,Active,2026-07-06
+E013,Divya Petrov,Engineering,Data Engineer,San Francisco,E006,2024-08-06,Contract,Hybrid,Active,employee,D001,Active,2026-05-17
+E014,Anya Sharma,Engineering,Software Engineer,San Francisco,E001,2017-11-02,Contract,Hybrid,Active,employee,D001,Active,2026-06-03
+E015,Pablo Berg,Engineering,Senior Software Engineer,San Francisco,E001,2016-04-17,Full-time,On-site,Active,employee,D001,Active,2026-09-16
+E016,Marcus Okafor,Engineering,Staff Engineer,San Francisco,E001,2016-01-18,Full-time,On-site,Active,employee,D001,Active,2026-09-24
+E017,Aisha Chen,Engineering,QA Engineer,San Francisco,E001,2020-01-17,Contract,Hybrid,Active,employee,D001,Active,2026-06-04
+E018,Julian Okafor,Engineering,DevOps Engineer,San Francisco,E001,2019-04-20,Full-time,Hybrid,Active,employee,D001,Active,2026-07-26
+E019,Lucas Wright,Engineering,Data Engineer,San Francisco,E001,2021-07-15,Full-time,Remote,Inactive,employee,D001,Terminated,2026-06-10
+E020,Dmitri Bakr,Engineering,Frontend Engineer,San Francisco,E001,2017-11-28,Full-time,On-site,Active,employee,D001,Active,2026-08-13
+E021,Harper Volkov,Engineering,Backend Engineer,San Francisco,E001,2023-01-21,Full-time,On-site,Active,employee,D001,Active,2026-08-28
+E022,Noah Marino,Product,Product Manager,San Francisco,E002,2021-10-28,Part-time,Remote,Active,employee,D002,Active,2026-05-08
+E023,Owen Patel,Product,Product Designer,San Francisco,E002,2025-08-09,Full-time,On-site,Active,employee,D002,Active,2026-07-18
+E024,Kai Kelly,Product,UX Researcher,San Francisco,E002,2016-03-28,Full-time,Remote,Active,employee,D002,Active,2026-09-05
+E025,Mei Bakr,Product,Associate Product Manager,San Francisco,E002,2022-02-10,Full-time,On-site,Active,employee,D002,Active,2026-08-22
+E026,Ingrid Silva,Product,Product Manager,Austin,E002,2022-12-05,Contract,Hybrid,Active,employee,D002,Active,2026-05-17
+E027,Maya Cohen,Product,Product Designer,San Francisco,E002,2021-01-04,Full-time,Remote,Active,employee,D002,Active,2026-07-20
+E028,Selma Berg,Product,UX Researcher,San Francisco,E002,2025-07-25,Full-time,Hybrid,Active,employee,D002,Active,2026-08-16
+E029,Lucas Berg,Product,Associate Product Manager,San Francisco,E002,2024-07-14,Full-time,Hybrid,Active,employee,D002,Active,2026-08-03
+E030,Jonas Alvarez,Sales,Account Executive,New York,E003,2020-04-23,Full-time,On-site,Active,employee,D003,Active,2026-08-23
+E031,Hannah Silva,Sales,Sales Development Representative,New York,E003,2018-12-13,Full-time,On-site,Active,employee,D003,Active,2026-05-10
+E032,Elena Nguyen,Sales,Solutions Engineer,New York,E003,2020-02-05,Full-time,Hybrid,Active,employee,D003,Active,2026-09-18
+E033,Yuki Moreau,Sales,Customer Success Manager,New York,E003,2017-01-03,Full-time,On-site,Active,employee,D003,Probation,2026-09-26
+E034,Aisha Meyer,Sales,Sales Operations Analyst,New York,E003,2022-01-10,Full-time,Hybrid,Active,employee,D003,Active,2026-09-08
+E035,Greta Marino,Sales,Account Executive,New York,E003,2018-11-13,Full-time,On-site,Active,employee,D003,Active,2026-07-16
+E036,Elena Kowalski,Sales,Sales Development Representative,New York,E003,2018-07-09,Full-time,Hybrid,Active,employee,D003,Active,2026-05-12
+E037,Maya Sharma,Sales,Solutions Engineer,New York,E003,2019-12-21,Full-time,Hybrid,Active,employee,D003,Active,2026-08-04
+E038,Liam Silva,Sales,Customer Success Manager,New York,E003,2016-07-11,Contract,Hybrid,Active,employee,D003,Active,2026-07-15
+E039,Bruno Alvarez,Operations,Operations Analyst,Austin,E004,2025-03-10,Full-time,Remote,Active,employee,D004,Active,2026-06-16
+E040,Maya Aziz,Operations,Facilities Coordinator,Austin,E004,2022-06-10,Full-time,Hybrid,Inactive,employee,D004,Terminated,2026-09-26
+E041,Marcus Sullivan,Operations,Program Manager,Austin,E004,2022-05-27,Contract,Hybrid,Active,employee,D004,Active,2026-09-07
+E042,Connor Bianchi,Operations,Supply Chain Analyst,Austin,E004,2024-03-22,Contract,On-site,Active,employee,D004,Active,2026-08-23
+E043,Jonas Petrov,Operations,Business Operations Associate,Austin,E004,2020-12-03,Contract,Hybrid,Active,employee,D004,Active,2026-08-22
+E044,Harper Marino,Operations,Operations Analyst,Austin,E004,2020-04-09,Full-time,Hybrid,Active,employee,D004,Active,2026-08-03
+E045,Ibrahim Nguyen,Operations,Facilities Coordinator,Austin,E004,2025-08-19,Full-time,Hybrid,Active,employee,D004,Active,2026-08-18
+E046,Chloe Kelly,Human Resources,Recruiter,New York,E005,2021-12-26,Full-time,Hybrid,Active,employee,D005,Active,2026-05-04
+E047,Kai Chen,Human Resources,People Operations Specialist,New York,E005,2021-03-21,Full-time,Hybrid,Active,employee,D005,Probation,2026-08-25
+E048,Marcus Khan,Human Resources,HR Coordinator,New York,E005,2022-02-01,Full-time,On-site,Active,employee,D005,Active,2026-09-18
+E049,Rosa Sharma,Human Resources,Learning & Development Specialist,New York,E005,2025-04-15,Full-time,Hybrid,Inactive,employee,D005,On Leave,2026-09-23
+E050,Yuki Patel,Human Resources,Compensation Analyst,New York,E005,2021-01-16,Full-time,Hybrid,Active,employee,D005,Active,2026-05-04

@@ -113,9 +113,6 @@ export default function SectionNav({ brand, sections }) {
                   {index + 1}
                 </span>
                 <span className="truncate">{section.label}</span>
-                {isActive && (
-                  <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-blue-600" />
-                )}
               </button>
             );
           })}

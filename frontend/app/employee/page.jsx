@@ -4,6 +4,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AgCharts } from "ag-charts-react";
 import { ModuleRegistry, AllCommunityModule } from "ag-charts-community";
 import SectionNav from "@/components/SectionNav";
+import FlipCard from "@/components/FlipCard";
+import { KPIS as KPI_EXPLAIN, CHARTS as CHART_EXPLAIN } from "@/components/explain/employee";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -355,7 +357,11 @@ function KpiCard({ kpi }) {
   const tone = deltaTone(benchmark?.delta, higher_is_better);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+    <FlipCard
+      className="rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md"
+      how={KPI_EXPLAIN[kpi.key]}
+      item={kpi}
+    >
       <div className="flex items-start justify-between gap-3">
         <p className="text-sm font-medium text-slate-500">{label}</p>
         {has && (
@@ -383,16 +389,17 @@ function KpiCard({ kpi }) {
       {has && (
         <ComparisonTrack value={value} benchmark={benchmark} unit={unit} />
       )}
-    </div>
+    </FlipCard>
   );
 }
 
 function ChartCard({ card }) {
   return (
-    <section
-      className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-sm ${
+    <FlipCard
+      className={`rounded-2xl border border-slate-200 bg-white shadow-sm ${
         card.full ? "lg:col-span-2" : ""
       }`}
+      how={CHART_EXPLAIN[card.key]}
     >
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <h3 className="text-base font-semibold text-slate-900">{card.title}</h3>
@@ -401,7 +408,7 @@ function ChartCard({ card }) {
       <div className="h-72 w-full">
         <AgCharts options={card.options} />
       </div>
-    </section>
+    </FlipCard>
   );
 }
 
@@ -445,14 +452,14 @@ function RecommendationCard({ item }) {
         </ol>
       )}
 
-      {item.why && (
+      {/* {item.why && (
         <div className="mt-4 rounded-xl bg-white/70 p-3">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
             Why it matters
           </p>
           <p className="mt-1 text-sm text-slate-600">{item.why}</p>
         </div>
-      )}
+      )} */}
 
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-white/70 pt-3 text-[11px] text-slate-500">
         {item.expected_impact && (
@@ -598,7 +605,7 @@ function Ranking({ headline, departmentName }) {
                 <td className="w-10 py-2 pl-3 text-right font-mono text-xs text-slate-400">
                   {row.rank}
                 </td>
-                <td className="py-2 pl-3 text-slate-700">
+                <td className="py-2 pl-3 text-slate-700 text-sm">
                   {row.name}
                   {row.is_you && (
                     <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700">
@@ -975,10 +982,16 @@ export default function EmployeeDashboard() {
           <section className="grid grid-cols-1 gap-5 lg:grid-cols-3">
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
               <h2 className="text-lg font-semibold text-slate-900">Where you stand</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                A composite index built from performance, engagement, wellbeing,
-                goal progress, learning and meeting efficiency.
-              </p>
+            <p className="mt-1 text-sm text-slate-500">
+              A composite index built from performance, engagement, wellbeing,
+              goal progress, learning and meeting efficiency.
+            </p>
+            <p className="mt-2 rounded-xl bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-500">
+              <span className="font-semibold text-slate-600">How it is scored:</span>{" "}
+              the average of performance, engagement, wellbeing and meeting
+              efficiency (each × 20) plus goal progress, goal achievement and
+              learning completion (as %). Every part is capped at 100.
+            </p>
               <div className="mt-6 flex flex-col items-center gap-8 sm:flex-row">
                 <div className="flex flex-col items-center gap-5">
                   <CompositeRing score={headline.score} />

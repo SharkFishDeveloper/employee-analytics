@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { AgCharts } from "ag-charts-react";
 import { ModuleRegistry, AllCommunityModule } from "ag-charts-community";
 import SectionNav from "@/components/SectionNav";
+import FlipCard from "@/components/FlipCard";
+import { KPIS as KPI_EXPLAIN, CHARTS as CHART_EXPLAIN } from "@/components/explain/hr";
+import { KPIS as EMPLOYEE_KPIS } from "@/components/explain/employee";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -237,7 +240,11 @@ function KpiCard({ kpi }) {
   const { label, unit, value, benchmark, higher_is_better } = kpi;
   const has = benchmark && benchmark.employee_value !== null;
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+    <FlipCard
+      className="rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md"
+      how={EMPLOYEE_KPIS[kpi.key]}
+      item={kpi}
+    >
       <div className="flex items-start justify-between gap-3">
         <p className="text-sm font-medium text-slate-500">{label}</p>
         {has && (
@@ -266,7 +273,7 @@ function KpiCard({ kpi }) {
         )}
       </div>
       {has && <ComparisonTrack value={value} benchmark={benchmark} unit={unit} />}
-    </div>
+    </FlipCard>
   );
 }
 
@@ -327,14 +334,14 @@ function RecommendationCard({ item }) {
         </ol>
       )}
 
-      {item.why && (
+      {/* {item.why && (
         <div className="mt-4 rounded-xl bg-white/70 p-3">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
             Why it matters
           </p>
           <p className="mt-1 text-sm text-slate-600">{item.why}</p>
         </div>
-      )}
+      )} */}
 
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-white/70 pt-3 text-[11px] text-slate-500">
         {item.expected_impact && (
@@ -384,12 +391,13 @@ function Recommendations({ data, title = "AI recommendations" }) {
   );
 }
 
-function ChartCard({ title, subtitle, options, full }) {
+function ChartCard({ chartKey, title, subtitle, options, full }) {
   return (
-    <section
-      className={`rounded-2xl border border-slate-200 bg-white p-5 shadow-sm ${
+    <FlipCard
+      className={`rounded-2xl border border-slate-200 bg-white shadow-sm ${
         full ? "lg:col-span-2" : ""
       }`}
+      how={CHART_EXPLAIN[chartKey]}
     >
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <h3 className="text-base font-semibold text-slate-900">{title}</h3>
@@ -398,7 +406,7 @@ function ChartCard({ title, subtitle, options, full }) {
       <div className="h-72 w-full">
         <AgCharts options={options} />
       </div>
-    </section>
+    </FlipCard>
   );
 }
 
@@ -1387,9 +1395,16 @@ export default function HrDashboard() {
               <h2 className="text-lg font-semibold text-slate-900">
                 Company performance
               </h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Average composite index across all employees.
-              </p>
+            <p className="mt-1 text-sm text-slate-500">
+              Average composite index across all employees.
+            </p>
+            <p className="mt-2 rounded-xl bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-500">
+              <span className="font-semibold text-slate-600">How it is scored:</span>{" "}
+              each person's index averages performance, engagement, wellbeing and
+              meeting efficiency (each × 20) plus goal progress, goal achievement
+              and learning completion (as %), capped at 100. Departments average
+              their people.
+            </p>
               <div className="mt-6 flex flex-col items-center gap-8 sm:flex-row">
                 <div className="flex flex-col items-center gap-5">
                   <CompositeRing score={headline.company_composite} />
@@ -1500,29 +1515,31 @@ export default function HrDashboard() {
             </div>
             {org_kpis?.length > 0 && (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                {org_kpis.map((kpi) => (
-                  <div
-                    key={kpi.key}
-                    className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-                  >
-                    <p className="text-sm font-medium text-slate-500">
-                      {kpi.label}
+              {org_kpis.map((kpi) => (
+                <FlipCard
+                  key={kpi.key}
+                  className="rounded-2xl border border-slate-200 bg-white shadow-sm"
+                  how={KPI_EXPLAIN[kpi.key]}
+                  item={kpi}
+                >
+                  <p className="text-sm font-medium text-slate-500">
+                    {kpi.label}
+                  </p>
+                  <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                    {kpi.value ?? "—"}
+                    {kpi.unit ? (
+                      <span className="ml-1 text-lg font-semibold text-slate-400">
+                        {kpi.unit}
+                      </span>
+                    ) : null}
+                  </p>
+                  {kpi.note && (
+                    <p className="mt-2 text-xs leading-5 text-slate-400">
+                      {kpi.note}
                     </p>
-                    <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-                      {kpi.value ?? "—"}
-                      {kpi.unit ? (
-                        <span className="ml-1 text-lg font-semibold text-slate-400">
-                          {kpi.unit}
-                        </span>
-                      ) : null}
-                    </p>
-                    {kpi.note && (
-                      <p className="mt-2 text-xs leading-5 text-slate-400">
-                        {kpi.note}
-                      </p>
-                    )}
-                  </div>
-                ))}
+                  )}
+                </FlipCard>
+              ))}
               </div>
             )}
             {chartCards.length > 0 && (
@@ -1531,9 +1548,9 @@ export default function HrDashboard() {
                   KPI charts
                 </h3>
                 <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                  {chartCards.map(({ key, ...cardProps }) => (
-                    <ChartCard key={key} {...cardProps} />
-                  ))}
+                {chartCards.map(({ key, ...cardProps }) => (
+                  <ChartCard key={key} chartKey={key} {...cardProps} />
+                ))}
                 </div>
               </div>
             )}

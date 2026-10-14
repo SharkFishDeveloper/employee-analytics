@@ -4,11 +4,28 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AgCharts } from "ag-charts-react";
 import { ModuleRegistry, AllCommunityModule } from "ag-charts-community";
+import SectionNav from "@/components/SectionNav";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+const SECTIONS = [
+  { id: "overview", label: "Overview" },
+  { id: "recommendations", label: "Recommendations" },
+  { id: "kpis", label: "KPIs & charts" },
+  { id: "people", label: "People & managers" },
+  { id: "departments", label: "Departments" },
+  { id: "insights", label: "Insights" },
+];
+
+const BRAND = {
+  initials: "H",
+  title: "HR Analytics",
+  subtitle: "Company dashboard",
+  footer: "Company-wide view of every department and manager.",
+};
 
 const BLUE = "#2563eb";
 const GRAY = "#94a3b8";
@@ -345,7 +362,7 @@ function Recommendations({ data, title = "AI recommendations" }) {
   if (items.length === 0) return null;
 
   return (
-    <section>
+    <section id="recommendations">
       <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
@@ -1336,293 +1353,296 @@ export default function HrDashboard() {
   } = data;
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8 text-slate-900 sm:px-8">
-      <div className="mx-auto max-w-7xl space-y-10">
-        {/* Header */}
-        <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-4">
-            <Avatar initials={profile.initials} className="h-16 w-16 text-xl" />
-            <div>
-              <p className="text-xs font-semibold tracking-widest text-blue-600">
-                HR ANALYTICS
-              </p>
-              <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">
-                Company overview
-              </h1>
-              <p className="mt-1 text-sm text-slate-500">
-                Signed in as {profile.Employee_Name} · {profile.Job_Role}
-              </p>
+    <main className="min-h-screen bg-slate-50 text-slate-900">
+      <SectionNav brand={BRAND} sections={SECTIONS} />
+      <div className="px-4 pb-8 pt-6 sm:px-8 lg:pl-[17rem] lg:pr-8">
+        <div className="mx-auto max-w-7xl space-y-10">
+          {/* Header */}
+          <header id="overview" className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-4">
+              <Avatar initials={profile.initials} className="h-16 w-16 text-xl" />
+              <div>
+                <p className="text-xs font-semibold tracking-widest text-blue-600">
+                  HR ANALYTICS
+                </p>
+                <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">
+                  Company overview
+                </h1>
+                <p className="mt-1 text-sm text-slate-500">
+                  Signed in as {profile.Employee_Name} · {profile.Job_Role}
+                </p>
+              </div>
             </div>
-          </div>
-          <a
-            href="/"
-            className="w-fit rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
-          >
-            Sign out
-          </a>
-        </header>
+            <a
+              href="/"
+              className="w-fit rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+            >
+              Sign out
+            </a>
+          </header>
 
-        {/* Company headline */}
-        <section className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Company performance
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Average composite index across all employees.
-            </p>
-            <div className="mt-6 flex flex-col items-center gap-8 sm:flex-row">
-              <div className="flex flex-col items-center gap-5">
-                <CompositeRing score={headline.company_composite} />
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                  Company index
+          {/* Company headline */}
+          <section className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
+              <h2 className="text-lg font-semibold text-slate-900">
+                Company performance
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Average composite index across all employees.
+              </p>
+              <div className="mt-6 flex flex-col items-center gap-8 sm:flex-row">
+                <div className="flex flex-col items-center gap-5">
+                  <CompositeRing score={headline.company_composite} />
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                    Company index
+                  </span>
+                </div>
+                <div className="grid flex-1 grid-cols-2 gap-4 sm:grid-cols-3">
+                  {[
+                    ["Employees", headline.employee_count],
+                    ["Active", headline.active_count],
+                    ["Departments", headline.department_count],
+                    ["Managers", headline.manager_count],
+                    [
+                      "Best dept",
+                      headline.best_department
+                        ? `${headline.best_department.name} (${headline.best_department.composite_index})`
+                        : "—",
+                    ],
+                    [
+                      "Top performer",
+                      headline.top_performer
+                        ? `${headline.top_performer.name} (${headline.top_performer.score})`
+                        : "—",
+                    ],
+                  ].map(([label, value]) => (
+                    <div
+                      key={label}
+                      className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-center"
+                    >
+                      <p className="text-[10px] uppercase tracking-wide text-slate-400">
+                        {label}
+                      </p>
+                      <p className="mt-1 truncate text-sm font-bold text-slate-900">
+                        {value ?? "—"}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Company insights
+                </h2>
+                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-600">
+                  {insights.length}
                 </span>
               </div>
-              <div className="grid flex-1 grid-cols-2 gap-4 sm:grid-cols-3">
-                {[
-                  ["Employees", headline.employee_count],
-                  ["Active", headline.active_count],
-                  ["Departments", headline.department_count],
-                  ["Managers", headline.manager_count],
-                  [
-                    "Best dept",
-                    headline.best_department
-                      ? `${headline.best_department.name} (${headline.best_department.composite_index})`
-                      : "—",
-                  ],
-                  [
-                    "Top performer",
-                    headline.top_performer
-                      ? `${headline.top_performer.name} (${headline.top_performer.score})`
-                      : "—",
-                  ],
-                ].map(([label, value]) => (
+              <div className="mt-4 max-h-80 space-y-3 overflow-y-auto pr-1">
+                {insights.map((insight, i) => {
+                  const style = SEVERITY[insight.severity] || SEVERITY.info;
+                  return (
+                    <div
+                      key={`${insight.title}-${i}`}
+                      className={`rounded-xl border p-4 ${style.card}`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-semibold text-slate-900">
+                          {insight.title}
+                        </p>
+                        <span
+                          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${style.badge}`}
+                        >
+                          {style.label}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        {insight.message}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+
+          {/* AI recommendations */}
+          <Recommendations data={recommendations} />
+
+          {/* KPIs */}
+          <section id="kpis">
+            <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900">KPIs</h2>
+                <p className="text-sm text-slate-500">
+                  Organisation KPIs and the charts behind them — hover for details.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCompare((v) => !v)}
+                className={`w-fit rounded-xl border px-4 py-2 text-sm font-medium transition ${
+                  compare
+                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    : "border-slate-300 bg-white text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <span
+                  className={`mr-2 inline-block h-2 w-2 rounded-full align-middle ${
+                    compare ? "bg-blue-500" : "bg-slate-400"
+                  }`}
+                />
+                Company average: {compare ? "On" : "Off"}
+              </button>
+            </div>
+            {org_kpis?.length > 0 && (
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                {org_kpis.map((kpi) => (
                   <div
-                    key={label}
-                    className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-center"
+                    key={kpi.key}
+                    className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
                   >
-                    <p className="text-[10px] uppercase tracking-wide text-slate-400">
-                      {label}
+                    <p className="text-sm font-medium text-slate-500">
+                      {kpi.label}
                     </p>
-                    <p className="mt-1 truncate text-sm font-bold text-slate-900">
-                      {value ?? "—"}
+                    <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                      {kpi.value ?? "—"}
+                      {kpi.unit ? (
+                        <span className="ml-1 text-lg font-semibold text-slate-400">
+                          {kpi.unit}
+                        </span>
+                      ) : null}
                     </p>
+                    {kpi.note && (
+                      <p className="mt-2 text-xs leading-5 text-slate-400">
+                        {kpi.note}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
+            )}
+            {chartCards.length > 0 && (
+              <div className="mt-8">
+                <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                  KPI charts
+                </h3>
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  {chartCards.map(({ key, ...cardProps }) => (
+                    <ChartCard key={key} {...cardProps} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900">
-                Company insights
-              </h2>
-              <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-600">
-                {insights.length}
-              </span>
-            </div>
-            <div className="mt-4 max-h-80 space-y-3 overflow-y-auto pr-1">
-              {insights.map((insight, i) => {
-                const style = SEVERITY[insight.severity] || SEVERITY.info;
-                return (
-                  <div
-                    key={`${insight.title}-${i}`}
-                    className={`rounded-xl border p-4 ${style.card}`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-semibold text-slate-900">
-                        {insight.title}
-                      </p>
-                      <span
-                        className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${style.badge}`}
+          {/* Top performers + managers */}
+          <section id="people" className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <Leaderboard rows={top_performers} onPick={openPerson} />
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Department managers
+                </h2>
+                <span className="text-xs text-slate-400">{managers.length}</span>
+              </div>
+              <div className="mt-4 max-h-[28rem] overflow-auto rounded-xl border border-slate-100">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-400">
+                    <tr>
+                      <th className="px-3 py-2 font-medium">#</th>
+                      <th className="px-3 py-2 font-medium">Manager</th>
+                      <th className="px-3 py-2 text-right font-medium">Team</th>
+                      <th className="px-3 py-2 text-right font-medium">Index</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {managers.map((m, i) => (
+                      <tr
+                        key={m.employee_id}
+                        onClick={() => openPerson(m.employee_id, true)}
+                        className="cursor-pointer border-b border-slate-100 hover:bg-blue-50/60"
                       >
-                        {style.label}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      {insight.message}
-                    </p>
-                  </div>
-                );
-              })}
+                        <td className="px-3 py-2 text-slate-400">{i + 1}</td>
+                        <td className="px-3 py-2">
+                          <span className="font-medium text-slate-800">
+                            {m.name}
+                          </span>
+                          <span className="block text-[11px] text-slate-400">
+                            {m.department}
+                            {m.standing ? ` · ${m.standing}` : ""}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 text-right text-slate-600">
+                          {m.team_size}
+                          <span className="block text-[11px] text-slate-400">
+                            team {m.team_index}
+                          </span>
+                        </td>
+                        <td
+                          className="px-3 py-2 text-right font-semibold"
+                          style={{ color: scoreColor(m.composite) }}
+                        >
+                          {m.composite?.toFixed(1) ?? "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* AI recommendations */}
-        <Recommendations data={recommendations} />
-
-        {/* KPIs */}
-        <section>
-          <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-            <div>
-              <h2 className="text-xl font-semibold text-slate-900">KPIs</h2>
+          {/* Departments */}
+          <section id="departments">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold text-slate-900">
+                Departments
+              </h2>
               <p className="text-sm text-slate-500">
-                Organisation KPIs and the charts behind them — hover for details.
+                Performance, manager and every employee in each department.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => setCompare((v) => !v)}
-              className={`w-fit rounded-xl border px-4 py-2 text-sm font-medium transition ${
-                compare
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
-                  : "border-slate-300 bg-white text-slate-600 hover:bg-slate-100"
-              }`}
-            >
-              <span
-                className={`mr-2 inline-block h-2 w-2 rounded-full align-middle ${
-                  compare ? "bg-blue-500" : "bg-slate-400"
-                }`}
-              />
-              Company average: {compare ? "On" : "Off"}
-            </button>
-          </div>
-          {org_kpis?.length > 0 && (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {org_kpis.map((kpi) => (
-                <div
-                  key={kpi.key}
-                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-                >
-                  <p className="text-sm font-medium text-slate-500">
-                    {kpi.label}
-                  </p>
-                  <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-                    {kpi.value ?? "—"}
-                    {kpi.unit ? (
-                      <span className="ml-1 text-lg font-semibold text-slate-400">
-                        {kpi.unit}
-                      </span>
-                    ) : null}
-                  </p>
-                  {kpi.note && (
-                    <p className="mt-2 text-xs leading-5 text-slate-400">
-                      {kpi.note}
-                    </p>
-                  )}
-                </div>
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              {departments.map((dept) => (
+                <DepartmentCard
+                  key={dept.department_id}
+                  dept={dept}
+                  onPick={openPerson}
+                />
               ))}
             </div>
-          )}
-          {chartCards.length > 0 && (
-            <div className="mt-8">
-              <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                KPI charts
-              </h3>
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                {chartCards.map(({ key, ...cardProps }) => (
-                  <ChartCard key={key} {...cardProps} />
-                ))}
-              </div>
-            </div>
-          )}
-        </section>
+          </section>
 
-        {/* Top performers + managers */}
-        <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <Leaderboard rows={top_performers} onPick={openPerson} />
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900">
-                Department managers
+          {/* Insights grid */}
+          <section id="insights">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-slate-900">
+                All insights
               </h2>
-              <span className="text-xs text-slate-400">{managers.length}</span>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">
+                {insights.length} insights
+              </span>
             </div>
-            <div className="mt-4 max-h-[28rem] overflow-auto rounded-xl border border-slate-100">
-              <table className="w-full text-sm">
-                <thead className="sticky top-0 bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-400">
-                  <tr>
-                    <th className="px-3 py-2 font-medium">#</th>
-                    <th className="px-3 py-2 font-medium">Manager</th>
-                    <th className="px-3 py-2 text-right font-medium">Team</th>
-                    <th className="px-3 py-2 text-right font-medium">Index</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {managers.map((m, i) => (
-                    <tr
-                      key={m.employee_id}
-                      onClick={() => openPerson(m.employee_id, true)}
-                      className="cursor-pointer border-b border-slate-100 hover:bg-blue-50/60"
-                    >
-                      <td className="px-3 py-2 text-slate-400">{i + 1}</td>
-                      <td className="px-3 py-2">
-                        <span className="font-medium text-slate-800">
-                          {m.name}
-                        </span>
-                        <span className="block text-[11px] text-slate-400">
-                          {m.department}
-                          {m.standing ? ` · ${m.standing}` : ""}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 text-right text-slate-600">
-                        {m.team_size}
-                        <span className="block text-[11px] text-slate-400">
-                          team {m.team_index}
-                        </span>
-                      </td>
-                      <td
-                        className="px-3 py-2 text-right font-semibold"
-                        style={{ color: scoreColor(m.composite) }}
-                      >
-                        {m.composite?.toFixed(1) ?? "—"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {insights.map((insight, index) => (
+                <InsightCard
+                  key={`${insight.title}-${index}`}
+                  insight={insight}
+                />
+              ))}
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Departments */}
-        <section>
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold text-slate-900">
-              Departments
-            </h2>
-            <p className="text-sm text-slate-500">
-              Performance, manager and every employee in each department.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            {departments.map((dept) => (
-              <DepartmentCard
-                key={dept.department_id}
-                dept={dept}
-                onPick={openPerson}
-              />
-            ))}
-          </div>
-        </section>
-
-        {/* Insights grid */}
-        <section>
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">
-              All insights
-            </h2>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600">
-              {insights.length} insights
-            </span>
-          </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {insights.map((insight, index) => (
-              <InsightCard
-                key={`${insight.title}-${index}`}
-                insight={insight}
-              />
-            ))}
-          </div>
-        </section>
-
-        <footer className="pb-6 text-center text-xs text-slate-400">
-          HR Analytics Portal · {headline.employee_count} employees ·{" "}
-          {headline.department_count} departments
-        </footer>
+          <footer className="pb-6 text-center text-xs text-slate-400">
+            HR Analytics Portal · {headline.employee_count} employees ·{" "}
+            {headline.department_count} departments
+          </footer>
+        </div>
       </div>
 
       {selected && (

@@ -3,11 +3,27 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { AgCharts } from "ag-charts-react";
 import { ModuleRegistry, AllCommunityModule } from "ag-charts-community";
+import SectionNav from "@/components/SectionNav";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+const SECTIONS = [
+  { id: "overview", label: "Overview" },
+  { id: "recommendations", label: "Recommendations" },
+  { id: "kpis", label: "KPIs & charts" },
+  { id: "departments", label: "Departments" },
+  { id: "team", label: "Your people" },
+];
+
+const BRAND = {
+  initials: "M",
+  title: "Manager Analytics",
+  subtitle: "Team dashboard",
+  footer: "Team view across the departments you manage.",
+};
 
 const BLUE = "#2563eb";
 const GRAY = "#94a3b8";
@@ -322,7 +338,7 @@ function Recommendations({ data, title = "AI recommendations" }) {
   if (items.length === 0) return null;
 
   return (
-    <section>
+    <section id="recommendations">
       <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
@@ -563,7 +579,10 @@ function TeamTable({ team, departments, onPick }) {
   ];
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <section
+      id="team"
+      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+    >
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-lg font-semibold text-slate-900">Your people</h2>
@@ -1506,257 +1525,260 @@ export default function ManagerDashboard() {
   } = data;
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8 text-slate-900 sm:px-8">
-      <div className="mx-auto max-w-7xl space-y-10">
-        {/* Header */}
-        <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-4">
-            <Avatar
-              initials={profile.initials}
-              className="h-16 w-16 text-xl"
-            />
-            <div>
-              <p className="text-xs font-semibold tracking-widest text-blue-600">
-                MANAGER ANALYTICS
-              </p>
-              <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">
-                {profile.Employee_Name}
-              </h1>
-              <p className="mt-1 text-sm text-slate-500">
-                {profile.Job_Role} · {profile.Department} · {profile.Location}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
-                {profile.managed_departments.map((d) => (
-                  <span
-                    key={d.department_id}
-                    className={`rounded-full px-2 py-0.5 font-medium ${
-                      d.assignment_type === "Primary"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-violet-100 text-violet-700"
-                    }`}
-                  >
-                    {d.name} · {d.assignment_type}
-                  </span>
-                ))}
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-slate-600">
-                  {context.total_employees} employees company-wide
-                </span>
-              </div>
-            </div>
-          </div>
-          <a
-            href="/"
-            className="w-fit rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
-          >
-            Sign out
-          </a>
-        </header>
-
-        {/* Own performance */}
-        <section className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Your performance
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Your own composite index and how it compares to other managers.
-            </p>
-            <div className="mt-6 flex flex-col items-center gap-8 sm:flex-row">
-              <div className="flex flex-col items-center gap-5">
-                <CompositeRing score={headline.score} />
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${standingColor(
-                    headline.standing
-                  )}`}
-                >
-                  {headline.standing || "—"}
-                </span>
-              </div>
-              <div className="grid flex-1 grid-cols-2 gap-4 sm:grid-cols-4">
-                {[
-                  ["Your index", headline.score?.toFixed(1)],
-                  ["Company avg", headline.company_avg?.toFixed(1)],
-                  ["Dept avg", headline.department_avg?.toFixed(1)],
-                  ["Managers rank", `${headline.rank} / ${headline.peers}`],
-                  ["Team size", meta.data_period.team_size],
-                  ["Direct reports", meta.data_period.direct_reports],
-                  ["Departments", context.managed_department_count],
-                  ["Company index", context.company_composite?.toFixed(1)],
-                ].map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-center"
-                  >
-                    <p className="text-[10px] uppercase tracking-wide text-slate-400">
-                      {label}
-                    </p>
-                    <p className="mt-1 text-lg font-bold text-slate-900">
-                      {value ?? "—"}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900">
-                Manager insights
-              </h2>
-              <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-600">
-                {insights.length}
-              </span>
-            </div>
-            <div className="mt-4 max-h-80 space-y-3 overflow-y-auto pr-1">
-              {insights.map((insight, i) => {
-                const style = SEVERITY[insight.severity] || SEVERITY.info;
-                return (
-                  <div
-                    key={`${insight.title}-${i}`}
-                    className={`rounded-xl border p-4 ${style.card}`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-sm font-semibold text-slate-900">
-                        {insight.title}
-                      </p>
-                      <span
-                        className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${style.badge}`}
-                      >
-                        {style.label}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      {insight.message}
-                    </p>
-                  </div>
-                );
-              })}
-              {insights.length === 0 && (
-                <p className="text-sm text-slate-400">No insights yet.</p>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* AI recommendations */}
-        <Recommendations data={recommendations} />
-
-        {/* KPIs */}
-        <section>
-          <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-            <div>
-              <h2 className="text-xl font-semibold text-slate-900">KPIs</h2>
-              <p className="text-sm text-slate-500">
-                Team health, your own metrics and the charts behind them.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setCompare((v) => !v)}
-              className={`w-fit rounded-xl border px-4 py-2 text-sm font-medium transition ${
-                compare
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
-                  : "border-slate-300 bg-white text-slate-600 hover:bg-slate-100"
-              }`}
-            >
-              <span
-                className={`mr-2 inline-block h-2 w-2 rounded-full align-middle ${
-                  compare ? "bg-blue-500" : "bg-slate-400"
-                }`}
+    <main className="min-h-screen bg-slate-50 text-slate-900">
+      <SectionNav brand={BRAND} sections={SECTIONS} />
+      <div className="px-4 pb-8 pt-6 sm:px-8 lg:pl-[17rem] lg:pr-8">
+        <div className="mx-auto max-w-7xl space-y-10">
+          {/* Header */}
+          <header id="overview" className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-4">
+              <Avatar
+                initials={profile.initials}
+                className="h-16 w-16 text-xl"
               />
-              Company average: {compare ? "On" : "Off"}
-            </button>
-          </div>
+              <div>
+                <p className="text-xs font-semibold tracking-widest text-blue-600">
+                  MANAGER ANALYTICS
+                </p>
+                <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">
+                  {profile.Employee_Name}
+                </h1>
+                <p className="mt-1 text-sm text-slate-500">
+                  {profile.Job_Role} · {profile.Department} · {profile.Location}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
+                  {profile.managed_departments.map((d) => (
+                    <span
+                      key={d.department_id}
+                      className={`rounded-full px-2 py-0.5 font-medium ${
+                        d.assignment_type === "Primary"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-violet-100 text-violet-700"
+                      }`}
+                    >
+                      {d.name} · {d.assignment_type}
+                    </span>
+                  ))}
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-slate-600">
+                    {context.total_employees} employees company-wide
+                  </span>
+                </div>
+              </div>
+            </div>
+            <a
+              href="/"
+              className="w-fit rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+            >
+              Sign out
+            </a>
+          </header>
 
-          {team_kpis?.length > 0 && (
-            <div>
-              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
-                Team health
-              </h3>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                {team_kpis.map((kpi) => (
-                  <div
-                    key={kpi.key}
-                    className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+          {/* Own performance */}
+          <section className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
+              <h2 className="text-lg font-semibold text-slate-900">
+                Your performance
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Your own composite index and how it compares to other managers.
+              </p>
+              <div className="mt-6 flex flex-col items-center gap-8 sm:flex-row">
+                <div className="flex flex-col items-center gap-5">
+                  <CompositeRing score={headline.score} />
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${standingColor(
+                      headline.standing
+                    )}`}
                   >
-                    <p className="text-sm font-medium text-slate-500">
-                      {kpi.label}
-                    </p>
-                    <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
-                      {kpi.value ?? "—"}
-                      {kpi.unit ? (
-                        <span className="ml-1 text-lg font-semibold text-slate-400">
-                          {kpi.unit}
-                        </span>
-                      ) : null}
-                    </p>
-                    {kpi.note && (
-                      <p className="mt-2 text-xs leading-5 text-slate-400">
-                        {kpi.note}
+                    {headline.standing || "—"}
+                  </span>
+                </div>
+                <div className="grid flex-1 grid-cols-2 gap-4 sm:grid-cols-4">
+                  {[
+                    ["Your index", headline.score?.toFixed(1)],
+                    ["Company avg", headline.company_avg?.toFixed(1)],
+                    ["Dept avg", headline.department_avg?.toFixed(1)],
+                    ["Managers rank", `${headline.rank} / ${headline.peers}`],
+                    ["Team size", meta.data_period.team_size],
+                    ["Direct reports", meta.data_period.direct_reports],
+                    ["Departments", context.managed_department_count],
+                    ["Company index", context.company_composite?.toFixed(1)],
+                  ].map(([label, value]) => (
+                    <div
+                      key={label}
+                      className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-center"
+                    >
+                      <p className="text-[10px] uppercase tracking-wide text-slate-400">
+                        {label}
                       </p>
-                    )}
-                  </div>
-                ))}
+                      <p className="mt-1 text-lg font-bold text-slate-900">
+                        {value ?? "—"}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          )}
 
-          {ownPrimary.length > 0 && (
-            <div className={team_kpis?.length > 0 ? "mt-8" : ""}>
-              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
-                Your key metrics
-              </h3>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {ownPrimary.map((kpi) => (
-                  <KpiCard key={kpi.key} kpi={kpi} />
-                ))}
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Manager insights
+                </h2>
+                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-600">
+                  {insights.length}
+                </span>
+              </div>
+              <div className="mt-4 max-h-80 space-y-3 overflow-y-auto pr-1">
+                {insights.map((insight, i) => {
+                  const style = SEVERITY[insight.severity] || SEVERITY.info;
+                  return (
+                    <div
+                      key={`${insight.title}-${i}`}
+                      className={`rounded-xl border p-4 ${style.card}`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-semibold text-slate-900">
+                          {insight.title}
+                        </p>
+                        <span
+                          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${style.badge}`}
+                        >
+                          {style.label}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        {insight.message}
+                      </p>
+                    </div>
+                  );
+                })}
+                {insights.length === 0 && (
+                  <p className="text-sm text-slate-400">No insights yet.</p>
+                )}
               </div>
             </div>
-          )}
+          </section>
 
-          {chartCards.length > 0 && (
-            <div className="mt-8">
-              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
-                KPI charts
-              </h3>
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                {chartCards.map(({ key, ...cardProps }) => (
-                  <ChartCard key={key} {...cardProps} />
-                ))}
+          {/* AI recommendations */}
+          <Recommendations data={recommendations} />
+
+          {/* KPIs */}
+          <section id="kpis">
+            <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900">KPIs</h2>
+                <p className="text-sm text-slate-500">
+                  Team health, your own metrics and the charts behind them.
+                </p>
               </div>
+              <button
+                type="button"
+                onClick={() => setCompare((v) => !v)}
+                className={`w-fit rounded-xl border px-4 py-2 text-sm font-medium transition ${
+                  compare
+                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    : "border-slate-300 bg-white text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <span
+                  className={`mr-2 inline-block h-2 w-2 rounded-full align-middle ${
+                    compare ? "bg-blue-500" : "bg-slate-400"
+                  }`}
+                />
+                Company average: {compare ? "On" : "Off"}
+              </button>
             </div>
-          )}
-        </section>
 
-        {/* Departments */}
-        <section>
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold text-slate-900">
-              Your departments
-            </h2>
-            <p className="text-sm text-slate-500">
-              KPIs and insights for each department you manage.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            {departments.map((dept) => (
-              <DepartmentCard key={dept.department_id} dept={dept} onPick={setSelected} />
-            ))}
-          </div>
-        </section>
+            {team_kpis?.length > 0 && (
+              <div>
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+                  Team health
+                </h3>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                  {team_kpis.map((kpi) => (
+                    <div
+                      key={kpi.key}
+                      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                    >
+                      <p className="text-sm font-medium text-slate-500">
+                        {kpi.label}
+                      </p>
+                      <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                        {kpi.value ?? "—"}
+                        {kpi.unit ? (
+                          <span className="ml-1 text-lg font-semibold text-slate-400">
+                            {kpi.unit}
+                          </span>
+                        ) : null}
+                      </p>
+                      {kpi.note && (
+                        <p className="mt-2 text-xs leading-5 text-slate-400">
+                          {kpi.note}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-        {/* Team */}
-        <TeamTable
-          team={team}
-          departments={departments}
-          onPick={setSelected}
-        />
+            {ownPrimary.length > 0 && (
+              <div className={team_kpis?.length > 0 ? "mt-8" : ""}>
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+                  Your key metrics
+                </h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {ownPrimary.map((kpi) => (
+                    <KpiCard key={kpi.key} kpi={kpi} />
+                  ))}
+                </div>
+              </div>
+            )}
 
-        <footer className="pb-6 text-center text-xs text-slate-400">
-          Manager Analytics Portal · {meta.data_period.team_size} people across{" "}
-          {context.managed_department_count} department(s)
-        </footer>
+            {chartCards.length > 0 && (
+              <div className="mt-8">
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500">
+                  KPI charts
+                </h3>
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  {chartCards.map(({ key, ...cardProps }) => (
+                    <ChartCard key={key} {...cardProps} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* Departments */}
+          <section id="departments">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold text-slate-900">
+                Your departments
+              </h2>
+              <p className="text-sm text-slate-500">
+                KPIs and insights for each department you manage.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              {departments.map((dept) => (
+                <DepartmentCard key={dept.department_id} dept={dept} onPick={setSelected} />
+              ))}
+            </div>
+          </section>
+
+          {/* Team */}
+          <TeamTable
+            team={team}
+            departments={departments}
+            onPick={setSelected}
+          />
+
+          <footer className="pb-6 text-center text-xs text-slate-400">
+            Manager Analytics Portal · {meta.data_period.team_size} people across{" "}
+            {context.managed_department_count} department(s)
+          </footer>
+        </div>
       </div>
 
       {selected && (

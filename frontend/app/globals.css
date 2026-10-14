@@ -5,3 +5,11 @@ body {
   background-color: #f8fafc;
   color: #0f172a;
 }
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

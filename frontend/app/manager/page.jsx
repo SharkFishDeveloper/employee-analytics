@@ -37,6 +37,10 @@ const GRAY = "#94a3b8";
 // KPIs hidden from the frontend everywhere (cards, charts).
 const HIDDEN_KPIS = new Set(["co2_saved", "renewable", "renewable_energy"]);
 
+// Hide any insight/recommendation text that mentions CO2 / emissions.
+const CO2_RE = /co2|co₂|emission/i;
+const hasCo2 = (obj) => CO2_RE.test(JSON.stringify(obj || {}));
+
 const PALETTE = [
   "#2563eb", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6",
   "#0891b2", "#db2777", "#65a30d", "#ea580c", "#0d9488",
@@ -177,39 +181,35 @@ function ComparisonTrack({ value, benchmark, unit }) {
     `${Math.min(100, Math.max(0, (Math.abs(v ?? 0) / max) * 100))}%`;
 
   return (
-    <div className="mt-5">
-      <div className="relative h-1.5 rounded-full bg-slate-100">
+    <div className="mt-4 rounded-xl bg-slate-50 px-3 py-2.5">
+      <div className="relative h-2 rounded-full bg-slate-200">
         <div
-          className="absolute inset-y-0 left-0 rounded-full bg-blue-100"
+          className="absolute inset-y-0 left-0 rounded-full bg-blue-400/70"
           style={{ width: pos(company) }}
         />
         {dept != null && (
           <div
-            className="absolute -top-1 h-3.5 w-px bg-slate-300"
+            className="absolute -top-0.5 h-3 w-px bg-slate-400"
             style={{ left: pos(dept) }}
             title="Department avg"
           />
         )}
         <div
-          className="absolute -top-1 h-3.5 w-px bg-slate-400"
-          style={{ left: pos(company) }}
-          title="Company avg"
-        />
-        <div
-          className="absolute -top-[5px] h-4 w-4 -translate-x-1/2 rounded-full border-2 border-white bg-blue-600 shadow"
+          className="absolute -top-[7px] h-4 w-4 -translate-x-1/2 rounded-full border-2 border-white bg-blue-600 shadow"
           style={{ left: pos(value) }}
+          title="You"
         />
       </div>
-      <div className="mt-2 flex items-center justify-between text-[11px] text-slate-400">
+      <div className="mt-2 flex items-center justify-between text-[11px] text-slate-500">
         <span>
           Company avg{" "}
-          <span className="font-medium text-slate-600">
+          <span className="font-semibold text-slate-700">
             {formatValue(company, unit)}
           </span>
         </span>
         <span>
           Rank{" "}
-          <span className="font-medium text-slate-600">
+          <span className="font-semibold text-slate-700">
             #{benchmark.rank}/{benchmark.peers}
           </span>
         </span>
@@ -227,8 +227,10 @@ function KpiCard({ kpi }) {
       how={KPI_EXPLAIN[kpi.key]}
       item={kpi}
     >
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-medium text-slate-500">{label}</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+          {label}
+        </p>
         {has && (
           <span
             className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${standingColor(
@@ -240,12 +242,12 @@ function KpiCard({ kpi }) {
         )}
       </div>
       <div className="mt-3 flex items-end justify-between gap-2">
-        <span className="text-3xl font-bold tracking-tight text-slate-900">
+        <span className="text-3xl font-bold leading-none tracking-tight text-slate-900">
           {formatValue(value, unit)}
         </span>
         {has && (
           <span
-            className={`pb-1 text-xs font-semibold ${deltaTone(
+            className={`pb-0.5 text-xs font-semibold ${deltaTone(
               benchmark.delta,
               higher_is_better
             )}`}
@@ -457,25 +459,30 @@ function DepartmentCard({ dept, onPick }) {
       </div>
 
       {/* KPI grid */}
-      <div className="mt-5 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+      <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
         {Object.entries(dept.kpis)
           .filter(([key]) => !HIDDEN_KPIS.has(key))
           .map(([key, kpi]) => (
-          <div key={key} className="flex items-center justify-between gap-3">
-            <span className="text-sm text-slate-500">{kpi.label}</span>
-            <span className="flex items-center gap-2">
+          <div
+            key={key}
+            className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
+          >
+            <p className="truncate text-[11px] font-medium text-slate-400">
+              {kpi.label}
+            </p>
+            <div className="mt-1 flex items-baseline justify-between gap-1">
               <span className="text-sm font-semibold text-slate-900">
                 {formatValue(kpi.value, kpi.unit)}
               </span>
               <span
-                className={`w-16 text-right text-[11px] font-medium ${deltaTone(
+                className={`text-[10px] font-medium ${deltaTone(
                   kpi.delta,
                   kpi.higher_is_better
                 )}`}
               >
                 {formatDelta(kpi.delta, kpi.unit)}
               </span>
-            </span>
+            </div>
           </div>
         ))}
       </div>
@@ -1210,19 +1217,36 @@ function objectivesPacingOptions(rows) {
   return {
     theme: chartTheme,
     background: { fill: "transparent" },
-    data: rows,
+    data: rows.map((r) => ({ ...r, target: 100 })),
     axes: [
-      { type: "category", position: "bottom" },
-      { type: "number", position: "left", title: { text: "Completion %" } },
+      { type: "category", position: "bottom", title: { text: "Month due" } },
+      {
+        type: "number",
+        position: "left",
+        title: { text: "Completion %" },
+        min: 0,
+        max: 100,
+      },
     ],
     series: [
       {
-        type: "bar",
+        type: "line",
         xKey: "period",
         yKey: "completion_rate",
         yName: "Completion rate",
-        fill: "#8b5cf6",
-        cornerRadius: 4,
+        stroke: "#8b5cf6",
+        strokeWidth: 3,
+        marker: { enabled: true, size: 7, fill: "#8b5cf6", stroke: "#fff" },
+      },
+      {
+        type: "line",
+        xKey: "period",
+        yKey: "target",
+        yName: "Target (100%)",
+        stroke: "#94a3b8",
+        strokeWidth: 1.5,
+        lineDash: [6, 5],
+        marker: { enabled: false },
       },
     ],
   };
@@ -1273,16 +1297,27 @@ function histogramOptions(values) {
 }
 
 function ChartCard({ chartKey, title, subtitle, options, full }) {
+  let hash = 0;
+  for (let i = 0; i < chartKey.length; i += 1) hash += chartKey.charCodeAt(i);
+  const accent = PALETTE[hash % PALETTE.length];
   return (
     <FlipCard
-      className={`rounded-2xl border border-slate-200 bg-white shadow-sm ${
+      className={`rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${
         full ? "lg:col-span-2" : ""
       }`}
       how={CHART_EXPLAIN[chartKey]}
     >
-      <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h3 className="text-base font-semibold text-slate-900">{title}</h3>
-        <span className="text-[11px] text-slate-400">{subtitle}</span>
+      <div className="mb-4 flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <span
+            className="h-2.5 w-2.5 shrink-0 rounded-full"
+            style={{ backgroundColor: accent }}
+          />
+          <h3 className="truncate text-[15px] font-semibold text-slate-900">
+            {title}
+          </h3>
+        </div>
+        <span className="shrink-0 text-[11px] text-slate-400">{subtitle}</span>
       </div>
       <div className="h-72 w-full">
         <AgCharts options={options} />
@@ -1467,12 +1502,12 @@ export default function ManagerDashboard() {
         full: false,
       });
     }
-    if (has(c.meeting_load_by_member)) {
+    if (has(c.wellbeing_by_department)) {
       cards.push({
-        key: "meeting_load",
-        title: "Meeting load by person",
-        subtitle: "Meeting cost-hours (top 12)",
-        options: hBarOptions(c.meeting_load_by_member, "name", "cost_hours", "#f59e0b"),
+        key: "wellbeing_dept",
+        title: "Wellbeing by department",
+        subtitle: "Average wellbeing score (out of 5)",
+        options: deptBarOptions(c.wellbeing_by_department, "wellbeing"),
         full: false,
       });
     }
@@ -1485,22 +1520,31 @@ export default function ManagerDashboard() {
         full: false,
       });
     }
-    if (has(c.learning_not_started_by_department)) {
+    if (has(c.team_performance_by_person)) {
       cards.push({
-        key: "learning_gap",
-        title: "Learning gap by department",
-        subtitle: "Share of courses not started",
-        options: deptBarOptions(c.learning_not_started_by_department, "not_started_pct"),
+        key: "perf_person",
+        title: "Performance of everyone you manage",
+        subtitle: `All ${c.team_performance_by_person.length} members — index (0–100)`,
+        options: hBarOptions(c.team_performance_by_person, "name", "score", BLUE),
+        full: c.team_performance_by_person.length > 12,
+      });
+    }
+    if (has(c.assessment_score_by_department)) {
+      cards.push({
+        key: "assessment_dept",
+        title: "Skills assessment by department",
+        subtitle: "Average assessment score (0–100)",
+        options: deptBarOptions(c.assessment_score_by_department, "score"),
         full: false,
       });
     }
-    if (has(c.engagement_trend_low)) {
+    if (has(c.goals_by_category)) {
       cards.push({
-        key: "engagement_low",
-        title: "Engagement of lowest performers",
-        subtitle: "Weekly — spot disengagement early",
-        options: weeklyLineOptions(c.engagement_trend_low),
-        full: true,
+        key: "goals_category",
+        title: "Team goals by category",
+        subtitle: "Where your goals are aimed",
+        options: donutChartOptions(c.goals_by_category, "category"),
+        full: false,
       });
     }
 
@@ -1538,11 +1582,19 @@ export default function ManagerDashboard() {
     departments,
     team,
     team_kpis,
-    insights,
-    recommendations,
+    insights: rawInsights = [],
+    recommendations: rawRecommendations,
     context,
     meta,
   } = data;
+
+  const insights = rawInsights.filter((i) => !hasCo2(i));
+  const recommendations = rawRecommendations
+    ? {
+        ...rawRecommendations,
+        items: (rawRecommendations.items || []).filter((i) => !hasCo2(i)),
+      }
+    : rawRecommendations;
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
@@ -1725,14 +1777,14 @@ export default function ManagerDashboard() {
                   {team_kpis.map((kpi) => (
                     <FlipCard
                       key={kpi.key}
-                      className="rounded-2xl border border-slate-200 bg-white shadow-sm"
+                      className="rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md"
                       how={TEAM_KPI_EXPLAIN[kpi.key]}
                       item={kpi}
                     >
-                      <p className="text-sm font-medium text-slate-500">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                         {kpi.label}
                       </p>
-                      <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                      <p className="mt-3 text-3xl font-bold leading-none tracking-tight text-slate-900">
                         {kpi.value ?? "—"}
                         {kpi.unit ? (
                           <span className="ml-1 text-lg font-semibold text-slate-400">
@@ -1741,7 +1793,7 @@ export default function ManagerDashboard() {
                         ) : null}
                       </p>
                       {kpi.note && (
-                        <p className="mt-2 text-xs leading-5 text-slate-400">
+                        <p className="mt-2 truncate border-t border-slate-100 pt-2 text-xs leading-5 text-slate-400">
                           {kpi.note}
                         </p>
                       )}

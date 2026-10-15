@@ -449,22 +449,6 @@ def hr_dashboard(employee_id: str | None = Query(None)):
             for label, mask in buckets
         ]
 
-    # --- Learning not-started share by department ---
-    if not learning.empty and "Department" in learning.columns:
-        lg_rows = []
-        for dept, group in learning.groupby(
-                learning["Department"].astype(str).str.strip()):
-            if group.empty:
-                continue
-            ns = (group["Course_Status"].astype(str).str.strip().str.lower()
-                  == "not started").mean()
-            lg_rows.append({
-                "department": clean(dept),
-                "not_started_pct": round(float(ns) * 100, 1),
-            })
-        charts["learning_not_started_by_department"] = sorted(
-            lg_rows, key=lambda r: -(r["not_started_pct"] or 0))
-
     # --- One-on-one cadence by manager ---
     if not meetings.empty and "Meeting_Type" in meetings.columns \
             and "Organizer_ID" in meetings.columns:
@@ -492,9 +476,6 @@ def hr_dashboard(employee_id: str | None = Query(None)):
             "unit": unit, "note": note,
         })
 
-    status_counts_all = employees["Employment_Status"].astype(str).str.strip()
-    add_org("headcount", "Headcount", int(len(all_ids)), "",
-            f"{int((status_counts_all == 'Active').sum())} active")
     if company_composite is not None:
         add_org("avg_index", "Avg performance index",
                 round(float(company_composite), 1))
@@ -525,9 +506,9 @@ def hr_dashboard(employee_id: str | None = Query(None)):
                     round(float(att) * 100, 1), "%")
 
     if not learning.empty and "Course_Status" in learning.columns:
-        ns = int((learning["Course_Status"].astype(str).str.strip().str.lower()
-                  == "not started").sum())
-        add_org("learning_not_started", "Learning not started", ns, "",
+        done = int((learning["Course_Status"].astype(str).str.strip().str.lower()
+                    == "completed").sum())
+        add_org("courses_completed", "Courses completed", done, "",
                 f"of {len(learning)} assigned courses")
 
     if not hybrid.empty:
@@ -636,15 +617,20 @@ def hr_dashboard(employee_id: str | None = Query(None)):
                 {"desk_utilization": round(avg_desk, 1)},
             )
 
-    lg = charts.get("learning_not_started_by_department", [])
-    if lg and lg[0].get("not_started_pct", 0) >= 25:
-        add_insight(
-            insights, "Learning", "warning",
-            f"{lg[0]['department']} lags on learning",
-            f"{lg[0]['not_started_pct']}% of {lg[0]['department']} courses are still "
-            "not started. Protect development time to avoid skills gaps.",
-            {"department": lg[0]["department"]},
-        )
+    dl = [
+        r for r in charts.get("department_learning", [])
+        if r.get("value") is not None
+    ]
+    if dl:
+        worst = min(dl, key=lambda r: r["value"])
+        if worst["value"] <= 50:
+            add_insight(
+                insights, "Learning", "warning",
+                f"{worst['department']} lags on learning completion",
+                f"Only {round(worst['value'])}% of {worst['department']} courses "
+                "are completed. Protect development time to avoid skills gaps.",
+                {"department": worst["department"]},
+            )
 
     co2 = next((k["value"] for k in org_kpis if k["key"] == "co2_saved"), None)
     if co2:

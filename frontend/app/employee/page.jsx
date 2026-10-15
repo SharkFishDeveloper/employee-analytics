@@ -98,6 +98,10 @@ const KPI_GROUPS = [
 // KPIs hidden from the frontend everywhere (cards, tables, charts).
 const HIDDEN_KPIS = new Set(["co2_saved", "renewable", "renewable_energy"]);
 
+// Hide any insight/recommendation text that mentions CO2 / emissions.
+const CO2_RE = /co2|co₂|emission/i;
+const hasCo2 = (obj) => CO2_RE.test(JSON.stringify(obj || {}));
+
 // ---------------------------------------------------------------------------
 // Formatting helpers
 // ---------------------------------------------------------------------------
@@ -824,11 +828,18 @@ export default function EmployeeDashboard() {
     profile,
     kpis,
     headline,
-    insights = [],
-    recommendations,
+    insights: rawInsights = [],
+    recommendations: rawRecommendations,
     details,
     context,
   } = dashboard;
+  const insights = rawInsights.filter((i) => !hasCo2(i));
+  const recommendations = rawRecommendations
+    ? {
+        ...rawRecommendations,
+        items: (rawRecommendations.items || []).filter((i) => !hasCo2(i)),
+      }
+    : rawRecommendations;
   const kpiList = Object.values(kpis).filter(
     (k) => !HIDDEN_KPIS.has(k.key)
   );

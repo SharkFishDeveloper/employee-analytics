@@ -36,6 +36,10 @@ const GRAY = "#94a3b8";
 // KPIs hidden from the frontend everywhere (cards, charts).
 const HIDDEN_KPIS = new Set(["co2_saved", "renewable", "renewable_energy"]);
 
+// Hide any insight/recommendation text that mentions CO2 / emissions.
+const CO2_RE = /co2|co₂|emission/i;
+const hasCo2 = (obj) => CO2_RE.test(JSON.stringify(obj || {}));
+
 const PALETTE = [
   "#2563eb", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6",
   "#0891b2", "#db2777", "#65a30d", "#ea580c", "#0d9488",
@@ -516,30 +520,6 @@ function histogramOptions(values) {
   };
 }
 
-function scatterOptions({ data, xKey, yKey, xLabel, yLabel }) {
-  return {
-    theme: chartTheme,
-    background: { fill: "transparent" },
-    data,
-    axes: [
-      { type: "number", position: "bottom", title: { text: xLabel } },
-      { type: "number", position: "left", title: { text: yLabel } },
-    ],
-    series: [
-      {
-        type: "scatter",
-        xKey,
-        yKey,
-        xName: xLabel,
-        yName: yLabel,
-        fill: "#6366f1",
-        stroke: "#4338ca",
-        marker: { size: 10, fillOpacity: 0.75, strokeOpacity: 0.5 },
-      },
-    ],
-  };
-}
-
 function groupedBarOptions({ data, xKey, series }) {
   return {
     theme: chartTheme,
@@ -722,25 +702,30 @@ function DepartmentCard({ dept, onPick }) {
       )}
 
       {/* KPIs */}
-      <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+      <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
         {Object.entries(dept.kpis)
           .filter(([key]) => !HIDDEN_KPIS.has(key))
           .map(([key, kpi]) => (
-          <div key={key} className="flex items-center justify-between gap-3">
-            <span className="text-sm text-slate-500">{kpi.label}</span>
-            <span className="flex items-center gap-2">
+          <div
+            key={key}
+            className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
+          >
+            <p className="truncate text-[11px] font-medium text-slate-400">
+              {kpi.label}
+            </p>
+            <div className="mt-1 flex items-baseline justify-between gap-1">
               <span className="text-sm font-semibold text-slate-900">
                 {formatValue(kpi.value, kpi.unit)}
               </span>
               <span
-                className={`w-14 text-right text-[11px] font-medium ${deltaTone(
+                className={`text-[10px] font-medium ${deltaTone(
                   kpi.delta,
                   kpi.higher_is_better
                 )}`}
               >
                 {formatDelta(kpi.delta, kpi.unit)}
               </span>
-            </span>
+            </div>
           </div>
         ))}
       </div>
@@ -1134,21 +1119,6 @@ export default function HrDashboard() {
         full: true,
       });
     }
-    if (has(c.performance_vs_wellbeing)) {
-      cards.push({
-        key: "perf_wellbeing",
-        title: "Performance vs wellbeing",
-        subtitle: `One point per employee (${c.performance_vs_wellbeing.length} people)`,
-        options: scatterOptions({
-          data: c.performance_vs_wellbeing,
-          xKey: "rating",
-          yKey: "wellbeing",
-          xLabel: "Overall rating (out of 5)",
-          yLabel: "Wellbeing (out of 5)",
-        }),
-        full: true,
-      });
-    }
     if (has(c.attendance_by_department)) {
       cards.push({
         key: "attendance",
@@ -1283,36 +1253,6 @@ export default function HrDashboard() {
         full: false,
       });
     }
-    if (has(c.learning_not_started_by_department)) {
-      cards.push({
-        key: "learning_gap",
-        title: "Learning not started by department",
-        subtitle: "Share of courses not started",
-        options: barOptions({
-          data: c.learning_not_started_by_department,
-          xKey: "department",
-          yKey: "not_started_pct",
-          fill: "#0891b2",
-        }),
-        full: false,
-      });
-    }
-    if (has(c.one_on_one_by_manager)) {
-      cards.push({
-        key: "one_on_one",
-        title: "One-on-one cadence by manager",
-        subtitle: "One-on-ones organized",
-        options: barOptions({
-          data: [...c.one_on_one_by_manager].reverse(),
-          xKey: "name",
-          yKey: "count",
-          horizontal: true,
-          fill: "#0ea5e9",
-        }),
-        full: false,
-      });
-    }
-
     return cards;
   }, [data, compare]);
 
@@ -1347,9 +1287,17 @@ export default function HrDashboard() {
     departments,
     managers,
     org_kpis,
-    insights,
-    recommendations,
+    insights: rawInsights = [],
+    recommendations: rawRecommendations,
   } = data;
+
+  const insights = rawInsights.filter((i) => !hasCo2(i));
+  const recommendations = rawRecommendations
+    ? {
+        ...rawRecommendations,
+        items: (rawRecommendations.items || []).filter((i) => !hasCo2(i)),
+      }
+    : rawRecommendations;
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">

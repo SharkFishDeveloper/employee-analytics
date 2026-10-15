@@ -33,10 +33,10 @@ export const KPIS = {
     "Taken from the meeting records itself.",
     "Higher is better.",
   ],
-  learning_not_started: [
-    "Team courses with status Not started.",
+  courses_completed: [
+    "Team courses with status Completed.",
     "The note shows total courses assigned to the team.",
-    "Lower is better.",
+    "Higher is better.",
   ],
   hybrid_share: [
     "Team weekly records with work mode Hybrid or Remote ÷ all records.",
@@ -107,28 +107,33 @@ export const CHARTS = {
     "A large red segment shows where to focus first.",
   ],
   pacing: [
-    "Each month: goals completed ÷ goals due.",
-    "Based on the month each goal was due.",
-    "Below 100% means that month's targets did not all land.",
+    "One line per month: goals completed ÷ goals due that month.",
+    "Based on the month each goal was due; the dashed line is the 100% target.",
+    "A falling line means that month's targets did not all land.",
   ],
-  meeting_load: [
-    "Per person: total Meeting_Cost_Hours (duration × attendees).",
-    "Top 12 people in your team, highest first.",
-    "High bars mean people stuck in meetings.",
+  wellbeing_dept: [
+    "Average Wellbeing_Score (1–5) for each of your departments.",
+    "Taken from every hybrid-work record for that department.",
+    "Higher means your people are feeling better.",
   ],
   office_remote: [
     "Per week: total office / remote days ÷ number of people.",
     "Team-wide average days per person.",
     "Shows the rhythm of office attendance.",
   ],
-  learning_gap: [
-    "Share of that department's courses still Not started.",
-    "One bar per department you manage.",
-    "Higher means assigned learning is untouched.",
+  perf_person: [
+    "Composite index (0–100) of every person you manage, highest first.",
+    "The same index shown on their own dashboards.",
+    "Scan the bottom of the list to spot who needs support.",
   ],
-  engagement_low: [
-    "Weekly Engagement_Score of your three lowest-index members.",
-    "Grey dashed line = the company average.",
-    "Catching a falling line early prevents a bigger drop.",
+  assessment_dept: [
+    "Average Assessment_Score (0–100) from courses taken in each department.",
+    "Only courses assigned to your departments are included.",
+    "Higher means stronger demonstrated skills.",
+  ],
+  goals_category: [
+    "Every team goal counted by its Goal_Category.",
+    "Team = everyone in the departments you manage.",
+    "Shows where your team's goals are aimed.",
   ],
 };

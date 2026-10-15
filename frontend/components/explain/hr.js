@@ -1,11 +1,6 @@
 // "How it's calculated" notes for the HR (company-wide) dashboard.
 
 export const KPIS = {
-  headcount: [
-    "Counts every employee in the roster.",
-    "The note shows how many are Active.",
-    "A roster number, not a trend.",
-  ],
   avg_index: [
     "Average composite index (0–100) across all employees.",
     "Each index blends performance, engagement, wellbeing, meetings, goals and learning.",
@@ -31,10 +26,10 @@ export const KPIS = {
     "Averaged from the meeting records.",
     "Higher is better.",
   ],
-  learning_not_started: [
-    "Courses company-wide with status Not started.",
+  courses_completed: [
+    "Courses company-wide with status Completed.",
     "The note shows total courses assigned.",
-    "Lower is better.",
+    "Higher is better.",
   ],
 };
 
@@ -78,11 +73,6 @@ export const CHARTS = {
     "One bar per index band: how many employees fall in it.",
     "Each employee's composite index (0–100) is binned.",
     "Shows whether performance is balanced or polarised.",
-  ],
-  perf_wellbeing: [
-    "One dot per employee: overall rating (x) vs wellbeing (y).",
-    "Both are personal averages (reviews and weekly records).",
-    "A bottom-left cloud means low rating and low wellbeing.",
   ],
   attendance: [
     "Average Attendance_Rate of each department's meetings.",
@@ -133,15 +123,5 @@ export const CHARTS = {
     "Employees grouped by years since their Join_Date.",
     "Buckets: under 2, 2–5, 5–8 and 8+ years.",
     "Shows how much of the company is new.",
-  ],
-  learning_gap: [
-    "Share of each department's courses still Not started.",
-    "Not-started courses ÷ all courses assigned there.",
-    "Higher means more training untouched.",
-  ],
-  one_on_one: [
-    "One-on-one meetings organised by each manager.",
-    "Only meetings typed 'one-on-one' are counted.",
-    "A rough proxy for coaching cadence.",
   ],
 };

@@ -400,24 +400,6 @@ def build_charts(managed_ids, dept_name_by_id, team_ids, manager_id,
             charts["office_vs_remote_weekly"] = sorted(
                 weekly_usage, key=lambda r: r["week"])
 
-    # --- Learning gap by department (share not started) ---
-    if not learning.empty and "Employee_ID" in learning.columns:
-        team_learning = learning[
-            learning["Employee_ID"].astype(str).str.strip().isin(team)
-        ]
-        lr_rows = []
-        for dept_id in managed_ids:
-            sub = team_learning[team_learning["Employee_ID"].isin(members_of(dept_id))]
-            if sub.empty:
-                continue
-            ns = (sub["Course_Status"].astype(str).str.strip().str.lower()
-                  == "not started").mean()
-            lr_rows.append({
-                "department": dept_name_by_id.get(dept_id, dept_id),
-                "not_started_pct": round(float(ns) * 100, 1),
-            })
-        charts["learning_not_started_by_department"] = lr_rows
-
     # --- Weekly engagement of the lowest-performing team members ---
     if not hybrid.empty and "Engagement_Score" in hybrid.columns:
         low_ids = [
@@ -444,6 +426,53 @@ def build_charts(managed_ids, dept_name_by_id, team_ids, manager_id,
                         "Engagement_Score"])
                 low_rows.append(row)
             charts["engagement_trend_low"] = low_rows
+
+    # --- Wellbeing by department ---
+    if not hybrid.empty and "Wellbeing_Score" in hybrid.columns:
+        charts["wellbeing_by_department"] = [
+            {
+                "department": dept_name_by_id.get(dept_id, dept_id),
+                "wellbeing": mean_of(
+                    hybrid[hybrid["Employee_ID"].isin(members_of(dept_id))][
+                        "Wellbeing_Score"]),
+            }
+            for dept_id in managed_ids
+        ]
+
+    # --- Performance index by team member ---
+    perf_person = [
+        {
+            "name": emp_name.get(m, m),
+            "score": composite_series[m],
+        }
+        for m in team_ids if m in composite_series
+    ]
+    perf_person.sort(key=lambda r: r["score"], reverse=True)
+    charts["team_performance_by_person"] = perf_person
+
+    # --- Skills assessment score by department ---
+    if not learning.empty and "Assessment_Score" in learning.columns:
+        tl = learning[learning["Employee_ID"].astype(str).str.strip().isin(team)]
+        charts["assessment_score_by_department"] = [
+            {
+                "department": dept_name_by_id.get(dept_id, dept_id),
+                "score": mean_of(
+                    tl[tl["Employee_ID"].astype(str).str.strip().isin(
+                        members_of(dept_id))]["Assessment_Score"]),
+            }
+            for dept_id in managed_ids
+        ]
+
+    # --- Team goals by category ---
+    if not goals.empty and "Goal_Category" in goals.columns:
+        tg = goals[goals["Employee_ID"].astype(str).str.strip().isin(team)]
+        if not tg.empty:
+            cats = (tg["Goal_Category"].astype(str).str.strip()
+                    .replace("", "Unspecified").value_counts())
+            charts["goals_by_category"] = [
+                {"category": clean(cat), "count": int(count)}
+                for cat, count in cats.items()
+            ]
 
     return charts
 
@@ -511,15 +540,15 @@ def build_team_kpis(team_ids, name_by_id, composite_series, employees):
             add("meeting_attendance", "Meeting attendance",
                 round(float(att) * 100, 1), "%")
 
-    # Learning gap
+    # Learning completion
     learning = records("Learning.csv")
     team_learning = learning[
         learning["Employee_ID"].astype(str).str.strip().isin(team)
     ] if not learning.empty else pd.DataFrame()
     if not team_learning.empty and "Course_Status" in team_learning.columns:
-        ns = (team_learning["Course_Status"].astype(str).str.strip().str.lower()
-              == "not started").sum()
-        add("learning_not_started", "Learning not started", int(ns), "",
+        done = (team_learning["Course_Status"].astype(str).str.strip().str.lower()
+                == "completed").sum()
+        add("courses_completed", "Courses completed", int(done), "",
             f"of {len(team_learning)} assigned courses")
 
     # Hybrid adoption
@@ -904,15 +933,15 @@ def manager_dashboard(manager_id: str = Query(..., min_length=1)):
         tl = learning_csv[learning_csv["Employee_ID"].astype(str).str.strip()
                           .isin(team_set)]
         if not tl.empty:
-            ns = (tl["Course_Status"].astype(str).str.strip().str.lower()
-                  == "not started").mean()
-            if ns >= 0.25:
+            done = (tl["Course_Status"].astype(str).str.strip().str.lower()
+                    == "completed").mean()
+            if done <= 0.5:
                 add_insight(
                     insights, "Learning", "warning",
-                    f"{round(ns * 100)}% of learning not started",
-                    f"{int(ns * len(tl))} of {len(tl)} assigned courses haven't been "
-                    "started. Protect time for development.",
-                    {"not_started_pct": round(float(ns) * 100, 1)},
+                    f"{round(done * 100)}% of courses completed",
+                    f"{int(done * len(tl))} of {len(tl)} assigned courses have been "
+                    "completed. Protect time for development.",
+                    {"completed_pct": round(float(done) * 100, 1)},
                 )
 
     hybrid_csv = records("HybridWork.csv")

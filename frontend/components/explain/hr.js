@@ -36,16 +36,6 @@ export const KPIS = {
     "The note shows total courses assigned.",
     "Lower is better.",
   ],
-  co2_saved: [
-    "Estimated_CO2_Saved_KG summed across all hybrid-work records.",
-    "The company's estimated commuting emissions avoided.",
-    "Higher is better.",
-  ],
-  renewable: [
-    "Average Renewable_Energy_Rate across all offices.",
-    "Averaged from every location's resource record.",
-    "Higher is better.",
-  ],
 };
 
 export const CHARTS = {
@@ -138,11 +128,6 @@ export const CHARTS = {
     "Two bars per office: average desk and room utilization.",
     "Taken from that location's resource record.",
     "Near 100% means the space is fully used.",
-  ],
-  sustainability: [
-    "Estimated CO₂ avoided each week across the company (kg).",
-    "Sum of Estimated_CO2_Saved_KG for that week.",
-    "Rises as more people work hybrid.",
   ],
   tenure: [
     "Employees grouped by years since their Join_Date.",

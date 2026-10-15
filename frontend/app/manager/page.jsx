@@ -34,6 +34,9 @@ const BRAND = {
 const BLUE = "#2563eb";
 const GRAY = "#94a3b8";
 
+// KPIs hidden from the frontend everywhere (cards, charts).
+const HIDDEN_KPIS = new Set(["co2_saved", "renewable", "renewable_energy"]);
+
 const PALETTE = [
   "#2563eb", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6",
   "#0891b2", "#db2777", "#65a30d", "#ea580c", "#0d9488",
@@ -455,7 +458,9 @@ function DepartmentCard({ dept, onPick }) {
 
       {/* KPI grid */}
       <div className="mt-5 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-        {Object.entries(dept.kpis).map(([key, kpi]) => (
+        {Object.entries(dept.kpis)
+          .filter(([key]) => !HIDDEN_KPIS.has(key))
+          .map(([key, kpi]) => (
           <div key={key} className="flex items-center justify-between gap-3">
             <span className="text-sm text-slate-500">{kpi.label}</span>
             <span className="flex items-center gap-2">
@@ -749,7 +754,9 @@ function Drilldown({ employeeId, onClose }) {
   }, [employeeId]);
 
   const primary = data
-    ? Object.values(data.kpis).filter((k) => k.primary)
+    ? Object.values(data.kpis).filter(
+        (k) => k.primary && !HIDDEN_KPIS.has(k.key)
+      )
     : [];
 
   return (
@@ -1331,7 +1338,9 @@ export default function ManagerDashboard() {
 
   const ownPrimary = useMemo(() => {
     if (!data) return [];
-    return Object.values(data.own.kpis).filter((k) => k.primary);
+    return Object.values(data.own.kpis).filter(
+      (k) => k.primary && !HIDDEN_KPIS.has(k.key)
+    );
   }, [data]);
 
   const chartCards = useMemo(() => {

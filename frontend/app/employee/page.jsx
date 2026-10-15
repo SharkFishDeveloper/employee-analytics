@@ -95,6 +95,9 @@ const KPI_GROUPS = [
   "Goals",
 ];
 
+// KPIs hidden from the frontend everywhere (cards, tables, charts).
+const HIDDEN_KPIS = new Set(["co2_saved", "renewable", "renewable_energy"]);
+
 // ---------------------------------------------------------------------------
 // Formatting helpers
 // ---------------------------------------------------------------------------
@@ -296,98 +299,31 @@ function buildOptions(spec, { compare }) {
 // ---------------------------------------------------------------------------
 // KPI card (redesigned)
 // ---------------------------------------------------------------------------
-function ComparisonTrack({ value, benchmark, unit }) {
-  const company = benchmark?.company_avg;
-  const dept = benchmark?.department_avg;
-  const max =
-    Math.max(
-      Math.abs(value ?? 0),
-      Math.abs(company ?? 0),
-      Math.abs(dept ?? 0),
-      1
-    ) * 1.15;
-  const pos = (v) =>
-    `${Math.min(100, Math.max(0, (Math.abs(v ?? 0) / max) * 100))}%`;
-
-  return (
-    <div className="mt-5">
-      <div className="relative h-1.5 rounded-full bg-slate-100">
-        <div
-          className="absolute inset-y-0 left-0 rounded-full bg-blue-100"
-          style={{ width: pos(company) }}
-        />
-        {dept != null && (
-          <div
-            className="absolute -top-1 h-3.5 w-px bg-slate-300"
-            style={{ left: pos(dept) }}
-            title="Department avg"
-          />
-        )}
-        <div
-          className="absolute -top-1 h-3.5 w-px bg-slate-400"
-          style={{ left: pos(company) }}
-          title="Company avg"
-        />
-        <div
-          className="absolute -top-[5px] h-4 w-4 -translate-x-1/2 rounded-full border-2 border-white bg-blue-600 shadow"
-          style={{ left: pos(value) }}
-        />
-      </div>
-      <div className="mt-2 flex items-center justify-between text-[11px] text-slate-400">
-        <span>
-          Company avg{" "}
-          <span className="font-medium text-slate-600">
-            {formatValue(company, unit)}
-          </span>
-        </span>
-        <span>
-          Rank{" "}
-          <span className="font-medium text-slate-600">
-            #{benchmark.rank}/{benchmark.peers}
-          </span>
-        </span>
-      </div>
-    </div>
-  );
-}
-
 function KpiCard({ kpi }) {
-  const { label, unit, value, benchmark, higher_is_better } = kpi;
-  const has = benchmark && benchmark.employee_value !== null;
-  const tone = deltaTone(benchmark?.delta, higher_is_better);
+  const { label, unit, value, benchmark } = kpi;
+  const company = benchmark?.company_avg;
+  const note =
+    company != null
+      ? `Company avg ${formatValue(company, unit)}`
+      : null;
 
   return (
     <FlipCard
-      className="rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md"
+      className="rounded-2xl border border-slate-200 bg-white shadow-sm"
       how={KPI_EXPLAIN[kpi.key]}
       item={kpi}
     >
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-medium text-slate-500">{label}</p>
-        {has && (
-          <span
-            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${standingColor(
-              benchmark.standing
-            )}`}
-          >
-            {benchmark.standing}
+      <p className="text-sm font-medium text-slate-500">{label}</p>
+      <p className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+        {formatValue(value, "")}
+        {unit ? (
+          <span className="ml-1 text-lg font-semibold text-slate-400">
+            {unit}
           </span>
-        )}
-      </div>
-
-      <div className="mt-3 flex items-end justify-between gap-2">
-        <span className="text-3xl font-bold tracking-tight text-slate-900">
-          {formatValue(value, unit)}
-        </span>
-        {has && (
-          <span className={`pb-1 text-xs font-semibold ${tone}`}>
-            {formatDelta(benchmark.delta, unit)}
-          </span>
-        )}
-      </div>
-
-      {has && (
-        <ComparisonTrack value={value} benchmark={benchmark} unit={unit} />
+        ) : null}
+      </p>
+      {note && (
+        <p className="mt-2 text-xs leading-5 text-slate-400">{note}</p>
       )}
     </FlipCard>
   );
@@ -727,15 +663,6 @@ export default function EmployeeDashboard() {
         unit: "h",
       },
       {
-        key: "weekly_co2_saved",
-        title: "Weekly CO₂ saved",
-        subtitle: "Estimated kg from hybrid work",
-        kind: "area-line",
-        xKey: "week",
-        valueKey: "co2_kg",
-        unit: "kg",
-      },
-      {
         key: "weekly_commute_distance",
         title: "Commute distance saved",
         subtitle: "KM avoided by working hybrid",
@@ -743,17 +670,6 @@ export default function EmployeeDashboard() {
         xKey: "week",
         valueKey: "km_distance",
         unit: "km",
-      },
-      {
-        key: "hours_vs_engagement",
-        title: "Hours vs engagement",
-        // subtitle: "One point per week — is more time better?",
-        kind: "scatter",
-        xKey: "hours",
-        yKey: "score",
-        xLabel: "Hours worked",
-        yLabel: "Engagement score",
-        full: true,
       },
       {
         key: "engagement_trend",
@@ -860,23 +776,13 @@ export default function EmployeeDashboard() {
         labelKey: "Priority",
       },
       {
-        key: "meeting_efficiency_by_type",
-        title: "Meeting efficiency by type",
-        subtitle: "Average efficiency score",
-        kind: "horizontal-bar",
-        xKey: "Meeting_Type",
-        valueKey: "score",
-        unit: "score",
-        full: true,
-      },
-      {
-        key: "meeting_types",
-        title: "Meetings organised by type",
-        subtitle: "Count per type",
-        kind: "horizontal-bar",
-        xKey: "Meeting_Type",
-        valueKey: "count",
-        unit: "meetings",
+        key: "meeting_performance",
+        title: "Meeting performance",
+        subtitle: "Percentage vs company average",
+        kind: "grouped-bar",
+        xKey: "metric",
+        valueKey: "value",
+        unit: "%",
         full: true,
       },
     ];
@@ -923,7 +829,9 @@ export default function EmployeeDashboard() {
     details,
     context,
   } = dashboard;
-  const kpiList = Object.values(kpis);
+  const kpiList = Object.values(kpis).filter(
+    (k) => !HIDDEN_KPIS.has(k.key)
+  );
   const primary = kpiList.filter((k) => k.primary);
   const grouped = KPI_GROUPS.map((group) => ({
     group,
@@ -1070,7 +978,7 @@ export default function EmployeeDashboard() {
                 Company average: {compare ? "On" : "Off"}
               </button>
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {primary.map((kpi) => (
                 <KpiCard key={kpi.key} kpi={kpi} />
               ))}
@@ -1391,7 +1299,6 @@ export default function EmployeeDashboard() {
                 {[
                   ["Desk utilization", context.location_resources?.Desk_Utilization],
                   ["Room utilization", context.location_resources?.Room_Utilization],
-                  ["Renewable energy", context.location_resources?.Renewable_Energy_Rate],
                 ].map(([label, value]) => (
                   <div key={label}>
                     <div className="flex justify-between text-sm">

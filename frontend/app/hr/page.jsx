@@ -33,6 +33,9 @@ const BRAND = {
 const BLUE = "#2563eb";
 const GRAY = "#94a3b8";
 
+// KPIs hidden from the frontend everywhere (cards, charts).
+const HIDDEN_KPIS = new Set(["co2_saved", "renewable", "renewable_energy"]);
+
 const PALETTE = [
   "#2563eb", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6",
   "#0891b2", "#db2777", "#65a30d", "#ea580c", "#0d9488",
@@ -720,7 +723,9 @@ function DepartmentCard({ dept, onPick }) {
 
       {/* KPIs */}
       <div className="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-        {Object.entries(dept.kpis).map(([key, kpi]) => (
+        {Object.entries(dept.kpis)
+          .filter(([key]) => !HIDDEN_KPIS.has(key))
+          .map(([key, kpi]) => (
           <div key={key} className="flex items-center justify-between gap-3">
             <span className="text-sm text-slate-500">{kpi.label}</span>
             <span className="flex items-center gap-2">
@@ -832,7 +837,9 @@ function Drilldown({ employeeId, onClose }) {
   }, [employeeId]);
 
   const primary = data
-    ? Object.values(data.kpis).filter((k) => k.primary)
+    ? Object.values(data.kpis).filter(
+        (k) => k.primary && !HIDDEN_KPIS.has(k.key)
+      )
     : [];
 
   return (
@@ -1264,22 +1271,6 @@ export default function HrDashboard() {
         full: false,
       });
     }
-    if (has(c.sustainability_weekly)) {
-      cards.push({
-        key: "sustainability",
-        title: "CO₂ saved from hybrid work",
-        subtitle: "Estimated kg each week",
-        options: areaOptions({
-          data: c.sustainability_weekly,
-          xKey: "week",
-          yKey: "co2_kg",
-          fill: "#10b981",
-          stroke: "#059669",
-          label: "CO₂ (kg)",
-        }),
-        full: false,
-      });
-    }
     if (has(c.tenure_distribution)) {
       cards.push({
         key: "tenure",
@@ -1515,7 +1506,9 @@ export default function HrDashboard() {
             </div>
             {org_kpis?.length > 0 && (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {org_kpis.map((kpi) => (
+              {org_kpis
+                .filter((kpi) => !HIDDEN_KPIS.has(kpi.key))
+                .map((kpi) => (
                 <FlipCard
                   key={kpi.key}
                   className="rounded-2xl border border-slate-200 bg-white shadow-sm"

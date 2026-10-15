@@ -3,9 +3,9 @@
 
 export const KPIS = {
   hours_worked: [
-    "Total Hours_Worked added up over every week you recorded.",
-    "Company avg: the same total for a typical employee.",
-    "Rank: 1 + how many people worked more hours than you.",
+    "Average Hours_Worked per week (a standard day is 8h, so ~40h/week).",
+    "Company avg: the same weekly average for a typical employee.",
+    "Rank: 1 + how many people worked more weekly hours than you.",
   ],
   avg_focus_hours: [
     "Average weekly Focus_Hours — protected deep-work time.",
@@ -41,11 +41,6 @@ export const KPIS = {
     "Commute_Distance_Saved_KM summed across your hybrid weeks.",
     "Company avg: the same saved distance per employee.",
     "Higher is better — more commuting avoided.",
-  ],
-  co2_saved: [
-    "Estimated_CO2_Saved_KG summed across your hybrid weeks.",
-    "Company avg: the same total for a typical employee.",
-    "Higher is better — more emissions avoided.",
   ],
   meeting_hours: [
     "Minutes in the meetings you organised ÷ 60, added up.",
@@ -140,20 +135,10 @@ export const CHARTS = {
     "Dashed line = company average for the same week.",
     "Flat or falling weeks usually mean meeting-heavy periods.",
   ],
-  weekly_co2_saved: [
-    "Estimated CO₂ you avoided each week by working hybrid (kg).",
-    "Dashed line: what the average employee saved that week.",
-    "Straight from Estimated_CO2_Saved_KG in your weekly records.",
-  ],
   weekly_commute_distance: [
     "Kilometres of commuting you avoided each week.",
     "Dashed line: the company average per person that week.",
     "Grows with the number of remote days you take.",
-  ],
-  hours_vs_engagement: [
-    "One dot per week: hours worked (x) vs your engagement (y).",
-    "Grey dots: the company average for the same week.",
-    "A downward cloud means more hours aren't buying engagement.",
   ],
   engagement_trend: [
     "Your weekly Engagement_Score (1–5) over time.",
@@ -215,14 +200,9 @@ export const CHARTS = {
     "Tooltip shows the company-average count per person.",
     "Shows how your goal load is weighted.",
   ],
-  meeting_efficiency_by_type: [
-    "Average Efficiency_Score (1–5) of your meetings by type.",
-    "Grey bar = the company average for that meeting type.",
-    "The lowest types are the ones to shorten or drop.",
-  ],
-  meeting_types: [
-    "Meetings you organised, counted by meeting type.",
-    "Grey bar = the company-average count per person.",
-    "Shows which meetings fill your calendar most.",
+  meeting_performance: [
+    "Your meeting attendance rate and action-completion rate (%).",
+    "Grey bar behind each = the company average for that metric.",
+    "Shows whether your meetings are well-attended and acted on.",
   ],
 };

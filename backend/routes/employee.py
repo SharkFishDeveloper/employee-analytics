@@ -519,7 +519,7 @@ def employee_dashboard(employee_id: str = Query(..., min_length=1)):
     # KPI catalog + per-employee series (these drive the benchmarks)
     # ------------------------------------------------------------------
     series = {
-        "hours_worked": employee_agg(hybrid_all, "Employee_ID", "Hours_Worked", "sum"),
+        "hours_worked": employee_agg(hybrid_all, "Employee_ID", "Hours_Worked", "mean"),
         "avg_focus_hours": employee_agg(hybrid_all, "Employee_ID", "Focus_Hours", "mean"),
         "avg_collaboration_hours": employee_agg(hybrid_all, "Employee_ID", "Collaboration_Hours", "mean"),
         "engagement_score": employee_agg(hybrid_all, "Employee_ID", "Engagement_Score", "mean"),
@@ -559,31 +559,31 @@ def employee_dashboard(employee_id: str = Query(..., min_length=1)):
         }
 
     catalog = [
-        ("hours_worked", "Hours worked", "h", "Productivity", True, True),
-        ("avg_focus_hours", "Average focus", "h/record", "Productivity", True, True),
-        ("avg_collaboration_hours", "Average collaboration", "h/record", "Productivity", True, False),
+        ("hours_worked", "Hours worked / week", "h/week", "Productivity", True, True),
+        ("avg_focus_hours", "Average focus", "h/record", "Productivity", False, True),
+        ("avg_collaboration_hours", "Average collaboration", "h/record", "Productivity", False, False),
         ("engagement_score", "Engagement", "score", "Wellbeing", True, True),
-        ("wellbeing_score", "Wellbeing", "score", "Wellbeing", True, True),
+        ("wellbeing_score", "Wellbeing", "score", "Wellbeing", False, True),
         ("office_days", "Office days", "days", "Work location", False, None),
         ("remote_days", "Remote days", "days", "Work location", False, None),
         ("commute_distance_saved", "Commute distance saved", "km", "Sustainability", False, True),
-        ("co2_saved", " saved", "kg", "Sustainability", True, True),
+        ("co2_saved", "CO2 saved", "kg", "Sustainability", False, True),
         ("meeting_hours", "Meeting hours", "h", "Meetings", True, False),
         ("meeting_attendance_rate", "Meeting attendance", "%", "Meetings", True, True),
-        ("action_completion_rate", "Action completion", "%", "Meetings", True, True),
+        ("action_completion_rate", "Action completion", "%", "Meetings", False, True),
         ("meeting_efficiency", "Meeting efficiency", "score", "Meetings", True, True),
         ("long_meeting_share", "Long meetings share", "%", "Meetings", False, False),
         ("meeting_cost_hours", "Meeting cost", "h", "Meetings", False, False),
         ("learning_completion_rate", "Learning completion", "%", "Learning", True, True),
         ("learning_hours_completed", "Learning hours", "h", "Learning", False, True),
-        ("assessment_score", "Assessment score", "score", "Learning", True, True),
-        ("certifications_earned", "Certifications", "certs", "Learning", True, True),
+        ("assessment_score", "Assessment score", "score", "Learning", False, True),
+        ("certifications_earned", "Certifications", "certs", "Learning", False, True),
         ("learning_points", "Learning points", "pts", "Learning", False, True),
         ("performance_rating", "Performance rating", "rating", "Performance", True, True),
         ("goal_achievement_rate", "Goal achievement", "%", "Performance", False, True),
         ("goal_progress", "Goal progress", "%", "Goals", True, True),
         ("goals_completed_rate", "Goals completed", "%", "Goals", False, True),
-        ("goals_overdue", "Overdue goals", "goals", "Goals", True, False),
+        ("goals_overdue", "Overdue goals", "goals", "Goals", False, False),
     ]
 
     kpis = {}
@@ -685,9 +685,6 @@ def employee_dashboard(employee_id: str = Query(..., min_length=1)):
         "weekly_commute_distance": weekly_compare(
             hybrid_all, employee_id, "Commute_Distance_Saved_KM", "sum",
             "km_distance"),
-        "hours_vs_engagement": weekly_scatter(
-            hybrid_all, employee_id, "Hours_Worked", "Engagement_Score",
-            "hours", "score"),
         "engagement_trend": weekly_compare(
             hybrid_all, employee_id, "Engagement_Score", "mean", "score"),
         "wellbeing_trend": weekly_compare(
@@ -722,11 +719,18 @@ def employee_dashboard(employee_id: str = Query(..., min_length=1)):
         "goal_progress_by_priority": category_compare(
             goals_all, employee_id, "Priority", "Progress_Percentage",
             "mean", "progress"),
-        "meeting_types": distribution_compare(
-            meetings_all, employee_id, "Meeting_Type", id_col="Organizer_ID"),
-        "meeting_efficiency_by_type": category_compare(
-            meetings_all, employee_id, "Meeting_Type", "Efficiency_Score",
-            "mean", "score", id_col="Organizer_ID"),
+        "meeting_performance": [
+            {
+                "metric": "Attendance rate",
+                "value": kpis["meeting_attendance_rate"]["value"],
+                "company_avg": mean_of(list(series["meeting_attendance_rate"].values())),
+            },
+            {
+                "metric": "Action completion",
+                "value": kpis["action_completion_rate"]["value"],
+                "company_avg": mean_of(list(series["action_completion_rate"].values())),
+            },
+        ],
         "focus_vs_collaboration": [
             {
                 "activity": "Focus",

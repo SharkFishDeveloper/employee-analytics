@@ -495,6 +495,13 @@ def employee_dashboard(employee_id: str = Query(..., min_length=1)):
         if not frame.empty and col in frame.columns:
             frame[col] = frame[col].astype(str).str.strip()
 
+    # Individual hours = total hours worked minus collaboration hours.
+    if not hybrid_all.empty and {"Hours_Worked", "Collaboration_Hours"}.issubset(hybrid_all.columns):
+        hybrid_all["Individual_Hours"] = (
+            numeric(hybrid_all["Hours_Worked"])
+            - numeric(hybrid_all["Collaboration_Hours"])
+        )
+
     # ---- employee-scoped views ----
     hybrid = hybrid_all[ids_equal(hybrid_all["Employee_ID"], employee_id)].copy() \
         if not hybrid_all.empty and "Employee_ID" in hybrid_all.columns else pd.DataFrame()
@@ -521,6 +528,7 @@ def employee_dashboard(employee_id: str = Query(..., min_length=1)):
     series = {
         "hours_worked": employee_agg(hybrid_all, "Employee_ID", "Hours_Worked", "mean"),
         "avg_focus_hours": employee_agg(hybrid_all, "Employee_ID", "Focus_Hours", "mean"),
+        "avg_individual_hours": employee_agg(hybrid_all, "Employee_ID", "Individual_Hours", "mean"),
         "avg_collaboration_hours": employee_agg(hybrid_all, "Employee_ID", "Collaboration_Hours", "mean"),
         "engagement_score": employee_agg(hybrid_all, "Employee_ID", "Engagement_Score", "mean"),
         "wellbeing_score": employee_agg(hybrid_all, "Employee_ID", "Wellbeing_Score", "mean"),
@@ -679,7 +687,7 @@ def employee_dashboard(employee_id: str = Query(..., min_length=1)):
         "weekly_work_hours": weekly_compare(
             hybrid_all, employee_id, "Hours_Worked", "sum", "hours"),
         "weekly_focus_hours": weekly_compare(
-            hybrid_all, employee_id, "Focus_Hours", "mean", "hours"),
+            hybrid_all, employee_id, "Individual_Hours", "sum", "hours"),
         "weekly_co2_saved": weekly_compare(
             hybrid_all, employee_id, "Estimated_CO2_Saved_KG", "sum", "co2_kg"),
         "weekly_commute_distance": weekly_compare(
@@ -709,9 +717,6 @@ def employee_dashboard(employee_id: str = Query(..., min_length=1)):
         "learning_status_distribution": distribution_compare(
             learning_all, employee_id, "Course_Status"),
         "performance_dimensions": [],
-        "goal_by_category": category_compare(
-            goals_all, employee_id, "Goal_Category", "Progress_Percentage",
-            "mean", "progress"),
         "goal_status_distribution": distribution_compare(
             goals_all, employee_id, "Goal_Status"),
         "goal_priority_distribution": distribution_compare(
@@ -733,9 +738,9 @@ def employee_dashboard(employee_id: str = Query(..., min_length=1)):
         ],
         "focus_vs_collaboration": [
             {
-                "activity": "Focus",
-                "hours": series["avg_focus_hours"].get(employee_id),
-                "company_avg": mean_of(list(series["avg_focus_hours"].values())),
+                "activity": "Individual",
+                "hours": series["avg_individual_hours"].get(employee_id),
+                "company_avg": mean_of(list(series["avg_individual_hours"].values())),
             },
             {
                 "activity": "Collaboration",

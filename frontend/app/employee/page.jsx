@@ -96,7 +96,12 @@ const KPI_GROUPS = [
 ];
 
 // KPIs hidden from the frontend everywhere (cards, tables, charts).
-const HIDDEN_KPIS = new Set(["co2_saved", "renewable", "renewable_energy"]);
+const HIDDEN_KPIS = new Set([
+  "co2_saved",
+  "renewable",
+  "renewable_energy",
+  "commute_distance_saved",
+]);
 
 // Hide any insight/recommendation text that mentions CO2 / emissions.
 const CO2_RE = /co2|co₂|emission/i;
@@ -659,21 +664,12 @@ export default function EmployeeDashboard() {
       },
       {
         key: "weekly_focus_hours",
-        title: "Weekly focus hours",
-        subtitle: "Deep work per week",
+        title: "Weekly individual hours",
+        subtitle: "Total hours minus collaboration per week",
         kind: "area-line",
         xKey: "week",
         valueKey: "hours",
         unit: "h",
-      },
-      {
-        key: "weekly_commute_distance",
-        title: "Commute distance saved",
-        subtitle: "KM avoided by working hybrid",
-        kind: "area-line",
-        xKey: "week",
-        valueKey: "km_distance",
-        unit: "km",
       },
       {
         key: "engagement_trend",
@@ -695,7 +691,7 @@ export default function EmployeeDashboard() {
       },
       {
         key: "focus_vs_collaboration",
-        title: "Focus vs collaboration",
+        title: "Individual vs collaboration",
         subtitle: "Average hours per week",
         kind: "grouped-bar",
         xKey: "activity",
@@ -744,15 +740,6 @@ export default function EmployeeDashboard() {
         subtitle: "Records by status",
         kind: "donut",
         labelKey: "Course_Status",
-      },
-      {
-        key: "goal_by_category",
-        title: "Goal progress by category",
-        subtitle: "Average progress %",
-        kind: "grouped-bar",
-        xKey: "Goal_Category",
-        valueKey: "progress",
-        unit: "%",
       },
       {
         key: "goal_progress_by_priority",

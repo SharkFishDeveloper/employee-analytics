@@ -131,14 +131,9 @@ export const CHARTS = {
     "Look for weeks where you spike far above everyone else.",
   ],
   weekly_focus_hours: [
-    "Area = your average Focus_Hours that week.",
+    "Area =  Total Hours worked - Collaboration Hours that week.",
     "Dashed line = company average for the same week.",
     "Flat or falling weeks usually mean meeting-heavy periods.",
-  ],
-  weekly_commute_distance: [
-    "Kilometres of commuting you avoided each week.",
-    "Dashed line: the company average per person that week.",
-    "Grows with the number of remote days you take.",
   ],
   engagement_trend: [
     "Your weekly Engagement_Score (1–5) over time.",
@@ -151,9 +146,9 @@ export const CHARTS = {
     "A sustained gap below the average needs a check-in.",
   ],
   focus_vs_collaboration: [
-    "Two bars: your average weekly focus and collaboration hours.",
+    "Two bars: your average weekly individual and collaboration hours.",
     "Grey bar behind each = the company average for that activity.",
-    "A healthy week usually has focus greater than collaboration.",
+    "Individual hours = total Hours_Worked minus Collaboration_Hours.",
   ],
   office_vs_remote_days: [
     "Totals of your office days and remote days for the period.",
@@ -179,11 +174,6 @@ export const CHARTS = {
     "Your courses counted by status (completed, in progress…).",
     "Tooltip shows the company-average count per person.",
     "A large 'not started' slice means assigned but untouched.",
-  ],
-  goal_by_category: [
-    "Average Progress_Percentage of your goals per category.",
-    "Grey bar = the company average progress for that category.",
-    "Shows which part of your goal mix is lagging.",
   ],
   goal_progress_by_priority: [
     "Average progress of your goals by High / Medium / Low priority.",
